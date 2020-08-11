@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:money_book/db_helper.dart';
 
 import 'package:money_book/input_dialog.dart';
+import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
 
 void main() {
@@ -43,7 +45,11 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
     Tab(text: '月表示'),
   ];
   
+  final dbHelper = DbHelper.instance;
   TabController _tabController;
+
+  // 各項目を保持
+  List<Item> _items = <Item>[];
   
   int _index = 0;
   
@@ -51,6 +57,16 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
    void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: tabs.length);
+
+    // DB から既存の項目を読出
+    dbHelper.allRows().then((v) {
+      // 読出時に一覧を再描画
+      setState(() {
+        v.forEach((row) {
+          _items.add(Item.fromMap(row));
+        });
+      });
+    });
    }
   
    @override
@@ -112,9 +128,14 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
             // 一覧表示
             return ListView.builder(
             itemBuilder: (BuildContext context, int index) {
+              
+              if (index >= _items.length) {
+                return null;
+              }
+
               return Padding(
                 padding: EdgeInsets.all(1.0),
-                child: ItemRow(),
+                child: ItemRow(item: _items[index]),
               );
             });
           } else {
@@ -154,9 +175,14 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
                 Flexible(
                   child: ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
+
+                      if (index >= _items.length) {
+                        return null;
+                      }
+
                       return Padding(
                         padding: EdgeInsets.all(1.0),
-                        child: ItemRow(),
+                        child: ItemRow(item: _items[index]),
                       );
                     }
                   ),
@@ -174,7 +200,13 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
             builder: (_) {
               return InputDialog();
             }
-          );
+          ).then((item) {
+            setState(() {
+              // 新規項目を DB に保存  
+              dbHelper.insert(item.toMap());
+              _items.add(item);
+            });        
+          });
         },
         child: Icon(Icons.add),
       ),

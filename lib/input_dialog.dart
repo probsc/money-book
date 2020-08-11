@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
+import 'package:money_book/item.dart';
+
 /// # 項目入力 ダイアログウィジェット
 /// 
 /// 項目入力ダイアログを表示
@@ -11,6 +13,7 @@ class InputDialog extends StatefulWidget {
 } 
 
 class InputDialogState extends State<InputDialog> {
+  // 各入力項目の controller
   TextEditingController _dateController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
@@ -78,7 +81,16 @@ class InputDialogState extends State<InputDialog> {
           ),
           FlatButton(
             child:Text('OK'),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Item item = Item(
+                _nameController.text,
+                int.parse(_priceController.text),
+                _dateController.text,
+                DateTime.now(),
+                DateTime.now(),
+              );
+              Navigator.pop(context, item);
+            }
           ),
       ],
     ); 

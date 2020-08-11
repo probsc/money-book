@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 
+import 'package:money_book/item.dart';
+
 /// # 項目表示行ウィジェット
 /// 
 /// 日付、項目名、金額、削除アイコンを表示
 /// 
 /// ```
-/// child: ItemRow()
+/// child: ItemRow(
+///   item: Item
+/// )
 /// ``` 
 class ItemRow extends StatefulWidget {
+  final Item item;
+
+  ItemRow({@required this.item});
+
   @override
   ItemRowState createState() => ItemRowState();
 }
@@ -21,18 +29,22 @@ class ItemRowState extends State<ItemRow> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            // 日付
             Expanded(
               flex: 1, 
-              child: Text('2020/08/10')
+              child: Text(widget.item.date)
             ),
+            // 項目名
             Expanded(
               flex: 1,
-              child: Text('食費')
+              child: Text(widget.item.name)
             ),
+            // 金額
             Expanded(
               flex: 1, 
-              child: Text('¥1000')
+              child: Text(widget.item.price.toString())
             ),
+            // 削除アイコン
             Expanded(
               flex: 1,
               child: Icon(Icons.android)
