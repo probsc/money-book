@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// # 項目表示行ウィジェット
+/// 
+/// 日付、項目名、金額、削除アイコンを表示
+/// 
+/// ```
+/// child: ItemRow()
+/// ``` 
 class ItemRow extends StatefulWidget {
   @override
   ItemRowState createState() => ItemRowState();

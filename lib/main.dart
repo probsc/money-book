@@ -108,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
         physics: const NeverScrollableScrollPhysics(),
         children: tabs.map((tab) {
           if (tab.text.contains(tabs[0].text)) {
+            // 一覧表示
             return ListView.builder(
             itemBuilder: (BuildContext context, int index) {
               return Padding(
@@ -116,8 +117,51 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
               );
             });
           } else {
-            // TODO: 月表示
-            return Text('月表示');
+            // 月表示
+            return Column(
+              children: <Widget>[
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(Icons.arrow_left),
+                        Text(
+                          '2020年 08月',
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontSize: 20,
+                          )
+                        ),
+                        Icon(Icons.arrow_right),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(  // 合計金額
+                    '¥xxxxx',
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 20,
+                    )
+                  ),
+                ),
+                // 月ごとの一覧を表示
+                Flexible(
+                  child: ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: EdgeInsets.all(1.0),
+                        child: ItemRow(),
+                      );
+                    }
+                  ),
+                ),
+              ],
+            );
           }  
         }).toList(),
       )
