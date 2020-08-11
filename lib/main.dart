@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item_row.dart';
 
 void main() {
@@ -37,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderStateMixin {
-    final List<Tab> tabs = <Tab>[
+  final List<Tab> tabs = <Tab>[
     Tab(text: '一覧'),
     Tab(text: '月表示'),
   ];
@@ -164,7 +165,19 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
             );
           }  
         }).toList(),
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (_) {
+              return InputDialog();
+            }
+          );
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
