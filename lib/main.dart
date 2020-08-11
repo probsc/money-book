@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:money_book/item_row.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -105,9 +107,18 @@ class _MyHomePageState extends State<MyHomePage> with  SingleTickerProviderState
         // タブ以外で画面をスクロールさせないように設定
         physics: const NeverScrollableScrollPhysics(),
         children: tabs.map((tab) {
-          return Center(
-            child: Text('${tab.text}'),
-          );
+          if (tab.text.contains(tabs[0].text)) {
+            return ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: EdgeInsets.all(1.0),
+                child: ItemRow(),
+              );
+            });
+          } else {
+            // TODO: 月表示
+            return Text('月表示');
+          }  
         }).toList(),
       )
     );
