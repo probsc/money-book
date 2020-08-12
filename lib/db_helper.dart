@@ -60,9 +60,15 @@ class DbHelper {
     return await db.query(tableName);
   }
 
+  // データ更新
+  Future<void> update(int id, Map<String, dynamic> row) async {
+    Database db = await instance.db;
+    await db.update(tableName, row, where: 'id=?', whereArgs: [id]);
+  }
+
   // データ削除
   Future<void> delete(int id) async {
     Database db = await instance.db;
-    await db.delete(tableName, where:'id=?', whereArgs:[id]);
+    await db.delete(tableName, where: 'id=?', whereArgs: [id]);
   }
 }

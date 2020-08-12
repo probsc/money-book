@@ -153,10 +153,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     item: _items[index],
                     onDeleteTaped: (id) {
                       setState(() {
-                        // 選択された項目を削除
+                        // 選択した項目を削除
                         _dbHelper.delete(id);
-                        _items.removeWhere((item) => item.id == id);
+                        _items.removeAt(index);
                       });
+                    },
+                    onItemEdited: (item) {
+                      setState(() {
+                        // 選択した項目を更新
+                        _dbHelper.update(item.id, item.toMap());
+                        _items[index] = item;
+                      });  
                     },
                   ),
                 );
@@ -209,9 +216,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             item: _items[index],
                             onDeleteTaped: (id) {
                               setState(() {
-                                // 選択された項目を削除
+                                // 選択した項目を削除
                                 _dbHelper.delete(id);
-                                _items.removeWhere((item) => item.id == id);
+                                _items.removeAt(index);
+                              });
+                            },
+                            onItemEdited: (item) {
+                              setState(() {
+                                // 選択して項目を更新
+                                _dbHelper.update(item.id, item.toMap());
+                                _items[index] = item;
                               });
                             },
                           ),

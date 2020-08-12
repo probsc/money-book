@@ -13,7 +13,8 @@ class Item {
     this.price,
     this.date,
     this.createdAt,
-    this.updatedAt
+    this.updatedAt,
+    [this.id]
   );
 
   Map<String, dynamic> toMap() {

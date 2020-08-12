@@ -8,6 +8,10 @@ import 'package:money_book/item.dart';
 /// 
 /// 項目入力ダイアログを表示
 class InputDialog extends StatefulWidget {
+  final int id;
+
+  InputDialog({this.id});
+
   @override
   InputDialogState createState() => InputDialogState();
 } 
@@ -88,6 +92,7 @@ class InputDialogState extends State<InputDialog> {
                 _dateController.text,
                 DateTime.now(),
                 DateTime.now(),
+                widget?.id,
               );
               Navigator.pop(context, item);
             }
