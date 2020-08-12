@@ -178,7 +178,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Icon(Icons.arrow_left),
+                          IconButton(
+                            onPressed: () {
+                              // TODO: 月変更
+                            },
+                            icon: Image.asset(
+                              'images/left_arrow.png', 
+                              color: Colors.black,
+                            ),
+                          ),
                           Text(
                             '2020年 08月',
                             style: TextStyle(
@@ -186,7 +194,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               fontSize: 20,
                             )
                           ),
-                          Icon(Icons.arrow_right),
+                          IconButton(
+                            onPressed: () {
+                              // TODO: 月変更
+                            },
+                            icon: Image.asset(
+                              'images/right_arrow.png',
+                              color: Colors.black,
+                            ),
+                          ),
                         ],
                       ),
                     ),

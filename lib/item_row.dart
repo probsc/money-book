@@ -78,7 +78,10 @@ class ItemRowState extends State<ItemRow> {
                   onPressed: () {
                     widget.onDeleteTaped(widget.item.id);
                   },
-                  icon: Icon(Icons.android)
+                  icon: Image.asset(
+                    'images/cross.png',
+                    color: Colors.black,
+                  ),
                 )
               ),
             ]
