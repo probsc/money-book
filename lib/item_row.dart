@@ -69,7 +69,7 @@ class ItemRowState extends State<ItemRow> {
               // 金額
               Expanded(
                 flex: 1, 
-                child: Text(widget.item.price.toString())
+                child: Text('¥${widget.item.price.toString()}')
               ),
               // 削除アイコン
               Expanded(

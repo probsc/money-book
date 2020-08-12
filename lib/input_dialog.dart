@@ -46,7 +46,7 @@ class InputDialogState extends State<InputDialog> {
               setState(() {
                 _selectDate(context).then(
                   (date) => _dateController.text = date != null 
-                    ? DateFormat('yyyy/MM/dd').format(date)
+                    ? DateFormat('yyyy-MM-dd').format(date)
                     : '',
                 );
               }); 
@@ -86,15 +86,22 @@ class InputDialogState extends State<InputDialog> {
           FlatButton(
             child:Text('OK'),
             onPressed: () {
-              Item item = Item(
-                _nameController.text,
-                int.parse(_priceController.text),
-                _dateController.text,
-                DateTime.now(),
-                DateTime.now(),
-                widget?.id,
-              );
-              Navigator.pop(context, item);
+              // 項目に全て入力がある場合のみ保存を受け付ける
+              if (_nameController.text.isEmpty ||
+                  _priceController.text.isEmpty ||
+                  _dateController.text.isEmpty) {
+                  Navigator.pop(context);
+              } else {
+                Item item = Item(
+                  _nameController.text,
+                  int.parse(_priceController.text),
+                  _dateController.text,
+                  DateTime.now(),
+                  DateTime.now(),
+                  widget?.id,
+                );
+                Navigator.pop(context, item);
+              }
             }
           ),
       ],

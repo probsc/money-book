@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:money_book/db_helper.dart';
+import 'package:intl/intl.dart';
 
+import 'package:money_book/db_helper.dart';
 import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
@@ -48,13 +49,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final _dbHelper = DbHelper.instance;
   TabController _tabController;
 
-  // 各項目を保持
+  // 各項目を保持するリスト
   List<Item> _items = <Item>[];
-  
-  int _index = 0;
 
-  @override
-  bool get wantKeepAlive => true;
+  // 月表示用リスト
+  List<Item> _monthItems = <Item>[];
+  
+  int _sumPrice = 0;
+  int _tabIndex = 0;
+
+  DateTime _currentDate = DateTime.now();
 
   // DB から項目を読出して一覧に加える
   void _loadItems() {
@@ -65,9 +69,33 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         v.forEach((row) {
           _items.add(Item.fromMap(row));
         });
+        _changeMonthItems();
       });
     });
   }
+
+  // 表示している月ごとに一覧を更新
+  void _changeMonthItems() {
+    var first = DateTime(_currentDate.year, _currentDate.month, 1);
+    var last = DateTime(_currentDate.year, _currentDate.month + 1, 0);
+    _monthItems = <Item>[];
+    _sumPrice = 0;
+
+    // 表示月に該当する日付で項目を絞り込む
+    _monthItems = _items.where((v) {
+      var date = DateTime.parse(v.date);
+      return date.compareTo(first) >= 0 &&
+        date.compareTo(last) < 0;
+    }).toList();
+
+    // 表示月の合計金額を算出
+    _monthItems.forEach((item) {
+      _sumPrice += item.price;
+    });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
   
   @override
   void initState() {
@@ -107,21 +135,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   children: <Widget>[
                     // 一覧/月表示ボタンを配置
                     FlatButton(
-                      color: _index == 0 ? Colors.white : Colors.blue,
+                      color: _tabIndex == 0 ? Colors.white : Colors.blue,
                       onPressed: () {
                         _tabController.animateTo(0);
                         setState(() {
-                          _index = 0;
+                          _tabIndex = 0;
                         });
                       },
                       child: Text(tabs[0].text),
                     ),
                     FlatButton(
-                      color: _index == 1 ? Colors.white : Colors.blue,
+                      color: _tabIndex == 1 ? Colors.white : Colors.blue,
                       onPressed: () {
                         _tabController.animateTo(1);
                         setState(() {
-                          _index = 1;
+                          _tabIndex = 1;
                         });
                       },
                       child: Text(tabs[1].text),
@@ -180,7 +208,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         children: <Widget>[
                           IconButton(
                             onPressed: () {
-                              // TODO: 月変更
+                              // 先月に変更
+                              setState(() {
+                                var newDate = DateTime(
+                                  _currentDate.year,
+                                  _currentDate.month - 1,
+                                  _currentDate.day
+                                );
+                                _currentDate = newDate;
+                                _changeMonthItems();
+                              });
                             },
                             icon: Image.asset(
                               'images/left_arrow.png', 
@@ -188,7 +225,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             ),
                           ),
                           Text(
-                            '2020年 08月',
+                            DateFormat('yyyy年 MM月').format(_currentDate),
                             style: TextStyle(
                               color: Colors.blueAccent,
                               fontSize: 20,
@@ -196,7 +233,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           ),
                           IconButton(
                             onPressed: () {
-                              // TODO: 月変更
+                              // 来月に変更
+                              setState(() {
+                                var newDate = DateTime(
+                                  _currentDate.year,
+                                  _currentDate.month + 1,
+                                  _currentDate.day
+                                );
+                                _currentDate = newDate;
+                                _changeMonthItems();
+                              });
                             },
                             icon: Image.asset(
                               'images/right_arrow.png',
@@ -210,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   Padding(
                     padding: EdgeInsets.all(20.0),
                     child: Text(  // 合計金額
-                      '¥xxxxx',
+                      '¥${_sumPrice.toString()}',
                       style: TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 20,
@@ -222,19 +268,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     child: ListView.builder(
                       itemBuilder: (BuildContext context, int index) {
 
-                        if (index >= _items.length) {
+                        if (index >= _monthItems.length) {
                           return null;
                         }
 
                         return Padding(
                           padding: EdgeInsets.all(1.0),
                           child: ItemRow(
-                            item: _items[index],
+                            item: _monthItems[index],
                             onDeleteTaped: (id) {
                               setState(() {
                                 // 選択した項目を削除
                                 _dbHelper.delete(id);
                                 _items.removeAt(index);
+                                _changeMonthItems();
                               });
                             },
                             onItemEdited: (item) {
@@ -242,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 // 選択して項目を更新
                                 _dbHelper.update(item.id, item.toMap());
                                 _items[index] = item;
+                                _changeMonthItems();
                               });
                             },
                           ),
@@ -269,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   _dbHelper.insert(item.toMap());
                   
                   // 一覧を更新
-                  _loadItems();
+                  _loadItems();    
                 }
               });        
             });
