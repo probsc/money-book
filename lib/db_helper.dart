@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 /// #  DB 関連クラス
 class DbHelper {
-  final String dbName = 'pocket_money_book.db';
+  final String dbName = 'money_book.db';
   final String tableName = 'items';
 
   // シングルトン
@@ -48,7 +48,7 @@ class DbHelper {
     ''');
   }
 
-  // Insert
+  // データ追加
   Future<void> insert(Map<String, dynamic> row) async {
     Database db = await instance.db;
     await db.insert(tableName, row);
@@ -58,5 +58,11 @@ class DbHelper {
   Future<List<Map<String, dynamic>>> allRows() async {
     Database db = await instance.db; 
     return await db.query(tableName);
+  }
+
+  // データ削除
+  Future<void> delete(int id) async {
+    Database db = await instance.db;
+    await db.delete(tableName, where:'id=?', whereArgs:[id]);
   }
 }

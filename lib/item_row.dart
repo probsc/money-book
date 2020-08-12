@@ -13,8 +13,9 @@ import 'package:money_book/item.dart';
 /// ``` 
 class ItemRow extends StatefulWidget {
   final Item item;
+  final Function(int) onDeleteTaped;
 
-  ItemRow({@required this.item});
+  ItemRow({@required this.item, @required this.onDeleteTaped});
 
   @override
   ItemRowState createState() => ItemRowState();
@@ -47,11 +48,16 @@ class ItemRowState extends State<ItemRow> {
             // 削除アイコン
             Expanded(
               flex: 1,
-              child: Icon(Icons.android)
+              child: IconButton(
+                onPressed: () {
+                  widget.onDeleteTaped(widget.item.id);
+                },
+                icon: Icon(Icons.android)
+              )
             ),
           ]
         )
       )
-    );    
+    );
   }
 }
