@@ -68,7 +68,7 @@ class ItemRowState extends State<ItemRow> {
                   widget.onDeleteTapped(widget.item.id);
                 },
                 icon: Image.asset(
-                  'images/cross.png',
+                  'images/trash.png',
                   color: Colors.black,
                   width: 20,
                   height: 20,
