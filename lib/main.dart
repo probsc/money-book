@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:grouped_list/grouped_list.dart';
+
 import 'package:money_book/db_helper.dart';
 import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
+import 'package:money_book/month_item_row.dart';
 
 void main() {
   runApp(MyApp());
@@ -86,6 +89,8 @@ class _MyHomePageState extends State<MyHomePage>
     map.forEach((item) {
       _items.add(Item.fromMap(item));
     });
+    //　日付が古い順にソート
+    _items.sort((a, b) => a.date.compareTo(b.date));
   }
 
   // 表示月の一覧を更新
@@ -106,6 +111,34 @@ class _MyHomePageState extends State<MyHomePage>
     _monthItems.forEach((item) {
       _sumPrice += item.price;
     });
+  }
+
+  // 曜日を算出
+  String _getWeekday(String date) {
+    var weekday = DateTime.parse(date);
+    switch (weekday.weekday) {
+      case DateTime.sunday:
+        return '(日)';
+        break;
+      case DateTime.monday:
+        return '(月)';
+        break;
+      case DateTime.tuesday:
+        return '(火)';
+        break;
+      case DateTime.wednesday:
+        return '(水)';
+        break;
+      case DateTime.thursday:
+        return '(木)';
+        break;
+      case DateTime.friday:
+        return '(金)';
+        break;
+      case DateTime.saturday:
+        return '(土)';
+        break;
+    }
   }
 
   @override
@@ -170,36 +203,58 @@ class _MyHomePageState extends State<MyHomePage>
         physics: const NeverScrollableScrollPhysics(),
         children: tabs.map((tab) {
           if (tabs[0] == tab) {
-            // 一覧表示
-            return ListView.builder(itemBuilder: (context, index) {
-              if (index >= _items.length) {
-                return null;
-              }
-
-              return Padding(
-                padding: EdgeInsets.all(1.0),
-                // 項目表示行を配置
-                child: ItemRow(
-                  item: _items[index],
-                  onDeleteTapped: (id) {
-                    setState(() {
-                      // 選択した項目を削除
-                      _dbHelper.delete(id);
-                      _items.removeAt(index);
-                      _updateMonthView();
-                    });
-                  },
-                  onItemEdited: (item) {
-                    setState(() {
-                      // 選択した項目を更新
-                      _dbHelper.update(item.id, item.toMap());
-                      _items[index] = item;
-                      _updateMonthView();
-                    });
-                  },
-                ),
-              );
-            });
+            // グループヘッダー
+            return Padding(
+              padding: EdgeInsets.all(10.0),
+              child: GroupedListView<dynamic, String>(
+                groupBy: (element) => element.date,
+                elements: _items,
+                order: GroupedListOrder.ASC,
+                useStickyGroupSeparators: true,
+                groupSeparatorBuilder: (String date) {
+                  return Container(
+                    child: Text(
+                      '$date ${_getWeekday(date)}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                    color: Colors.grey, // 背景色
+                  );
+                },
+                // 項目
+                indexedItemBuilder: (context, element, index) {
+                  if (_items.length == 0) {
+                    return null;
+                  }
+                  return Padding(
+                    padding: EdgeInsets.all(1.0),
+                    // 項目表示行を配置
+                    child: ItemRow(
+                      item: _items[index],
+                      onDeleteTapped: (id) {
+                        setState(() {
+                          // 選択した項目を削除
+                          _dbHelper.delete(id);
+                          _items.removeAt(index);
+                          _updateMonthView();
+                        });
+                      },
+                      onItemEdited: (item) {
+                        setState(() {
+                          // 選択した項目を更新
+                          _dbHelper.update(item.id, item.toMap());
+                          _items[index] = item;
+                          _updateMonthView();
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
           } else {
             // 月表示
             return Column(
@@ -272,7 +327,7 @@ class _MyHomePageState extends State<MyHomePage>
 
                     return Padding(
                       padding: EdgeInsets.all(1.0),
-                      child: ItemRow(
+                      child: MonthItemRow(
                         item: _monthItems[index],
                         onDeleteTapped: (id) {
                           setState(() {

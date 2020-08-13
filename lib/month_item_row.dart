@@ -3,31 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item.dart';
 
-/// # 項目表示行ウィジェット
+/// # 月表示_項目表示行ウィジェット
 ///
 /// 日付、項目名、金額、削除アイコンを表示
 ///
 /// ```
-/// child: ItemRow(
+/// child: MonthItemRow(
 ///   item: Item
 /// )
 /// ```
-class ItemRow extends StatefulWidget {
+class MonthItemRow extends StatefulWidget {
   final Item item;
   final Function(int) onDeleteTapped;
   final Function(Item) onItemEdited;
 
-  ItemRow({
+  MonthItemRow({
     @required this.item,
     @required this.onDeleteTapped,
     @required this.onItemEdited,
   });
 
   @override
-  ItemRowState createState() => ItemRowState();
+  MonthItemRowState createState() => MonthItemRowState();
 }
 
-class ItemRowState extends State<ItemRow> {
+class MonthItemRowState extends State<MonthItemRow> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,6 +54,8 @@ class ItemRowState extends State<ItemRow> {
         },
         child:
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+          // 日付
+          Expanded(flex: 1, child: Text(widget.item.date)),
           // 項目名
           Expanded(flex: 1, child: Text(widget.item.name)),
           // 金額
