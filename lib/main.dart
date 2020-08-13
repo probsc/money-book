@@ -187,6 +187,7 @@ class _MyHomePageState extends State<MyHomePage>
                       // 選択した項目を削除
                       _dbHelper.delete(id);
                       _items.removeAt(index);
+                      _updateMonthView();
                     });
                   },
                   onItemEdited: (item) {
@@ -194,6 +195,7 @@ class _MyHomePageState extends State<MyHomePage>
                       // 選択した項目を更新
                       _dbHelper.update(item.id, item.toMap());
                       _items[index] = item;
+                      _updateMonthView();
                     });
                   },
                 ),
