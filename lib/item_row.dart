@@ -70,6 +70,8 @@ class ItemRowState extends State<ItemRow> {
                 icon: Image.asset(
                   'images/cross.png',
                   color: Colors.black,
+                  width: 20,
+                  height: 20,
                 ),
               )),
         ]),

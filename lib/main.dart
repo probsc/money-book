@@ -171,8 +171,7 @@ class _MyHomePageState extends State<MyHomePage>
         children: tabs.map((tab) {
           if (tabs[0] == tab) {
             // 一覧表示
-            return ListView.builder(
-                itemBuilder: (context, index) {
+            return ListView.builder(itemBuilder: (context, index) {
               if (index >= _items.length) {
                 return null;
               }
@@ -224,6 +223,8 @@ class _MyHomePageState extends State<MyHomePage>
                         icon: Image.asset(
                           'images/left_arrow.png',
                           color: Colors.black,
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                       Text(DateFormat('yyyy年 MM月').format(_currentDate),
@@ -245,6 +246,8 @@ class _MyHomePageState extends State<MyHomePage>
                         icon: Image.asset(
                           'images/right_arrow.png',
                           color: Colors.black,
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                     ],
@@ -262,8 +265,7 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 // 月ごとの一覧を表示
                 Flexible(
-                  child: ListView.builder(
-                      itemBuilder: (context, index) {
+                  child: ListView.builder(itemBuilder: (context, index) {
                     if (index >= _monthItems.length) {
                       return null;
                     }
