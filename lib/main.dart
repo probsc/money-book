@@ -203,15 +203,15 @@ class _MyHomePageState extends State<MyHomePage>
         physics: const NeverScrollableScrollPhysics(),
         children: tabs.map((tab) {
           if (tabs[0] == tab) {
-            // グループヘッダー
+            // グループヘッダー (日付)
             return Padding(
               padding: EdgeInsets.all(10.0),
               child: GroupedListView<dynamic, String>(
-                groupBy: (element) => element.date,
+                groupBy: (element) => element.date, // 日付でグループ化
                 elements: _items,
-                order: GroupedListOrder.ASC,
-                useStickyGroupSeparators: true,
+                order: GroupedListOrder.ASC, // 並び順を日付を古い順に設定
                 groupSeparatorBuilder: (String date) {
+                  // グループヘッダーに背景色を設定するために Container をラップ
                   return Container(
                     child: Text(
                       '$date ${_getWeekday(date)}',
@@ -229,28 +229,34 @@ class _MyHomePageState extends State<MyHomePage>
                   if (_items.length == 0) {
                     return null;
                   }
-                  return Padding(
-                    padding: EdgeInsets.all(1.0),
-                    // 項目表示行を配置
-                    child: ItemRow(
-                      item: _items[index],
-                      onDeleteTapped: (id) {
-                        setState(() {
-                          // 選択した項目を削除
-                          _dbHelper.delete(id);
-                          _items.removeAt(index);
-                          _updateMonthView();
-                        });
-                      },
-                      onItemEdited: (item) {
-                        setState(() {
-                          // 選択した項目を更新
-                          _dbHelper.update(item.id, item.toMap());
-                          _items[index] = item;
-                          _updateMonthView();
-                        });
-                      },
+                  return Container(
+                    child: Padding(
+                      padding: EdgeInsets.all(1.0),
+                      // 項目表示行を配置
+                      child: ItemRow(
+                        item: _items[index],
+                        onDeleteTapped: (id) {
+                          setState(() {
+                            // 選択した項目を削除
+                            _dbHelper.delete(id);
+                            _items.removeAt(index);
+                            _updateMonthView();
+                          });
+                        },
+                        onItemEdited: (item) {
+                          setState(() {
+                            // 選択した項目を更新
+                            _dbHelper.update(item.id, item.toMap());
+                            _items[index] = item;
+                            _updateMonthView();
+                          });
+                        },
+                      ),
                     ),
+                    // 背景色設定
+                    color: (index % 2 == 0)
+                        ? Colors.transparent
+                        : Colors.grey[300],
                   );
                 },
               ),
