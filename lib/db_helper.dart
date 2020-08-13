@@ -21,7 +21,7 @@ class DbHelper {
     return _db;
   }
 
-  // DB 初期化
+  /// # DB 初期化 メソッド
   _initDatabase() async {
     Directory documentDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentDirectory.path, dbName);
@@ -33,40 +33,40 @@ class DbHelper {
       onCreate: _onCreate);
   }
 
-  // DB 作成
+  /// DB 作成メソッド
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-          CREATE TABLE IF NOT EXISTS "items"
-           (
-            "id"	INTEGER NOT NULL UNIQUE,
-            "name"	TEXT NOT NULL,
-            "price"	INTEGER NOT NULL,
-            "date"	TEXT NOT NULL,
-            "created_at"	TEXT NOT NULL,
-            "updated_at"	TEXT NOT NULL,
-            PRIMARY KEY("id" AUTOINCREMENT));
+          CREATE TABLE IF NOT EXISTS "items" (
+          "id" INTEGER NOT NULL UNIQUE,
+          "name" TEXT NOT NULL,
+          "price" INTEGER NOT NULL,
+          "date" TEXT NOT NULL,
+          "created_at" TEXT NOT NULL,
+          "updated_at" TEXT NOT NULL,
+          PRIMARY KEY("id" AUTOINCREMENT)
+      );
     ''');
   }
 
-  // データ追加
+  /// # データ追加 メソッド
   Future<void> insert(Map<String, dynamic> row) async {
     Database db = await instance.db;
     await db.insert(tableName, row);
   }
 
-  // 全件取得
+  /// # 全件取得 メソッド
   Future<List<Map<String, dynamic>>> allRows() async {
     Database db = await instance.db; 
     return await db.query(tableName);
   }
 
-  // データ更新
+  /// # データ更新メソッド
   Future<void> update(int id, Map<String, dynamic> row) async {
     Database db = await instance.db;
     await db.update(tableName, row, where: 'id=?', whereArgs: [id]);
   }
 
-  // データ削除
+  /// # データ削除メソッド
   Future<void> delete(int id) async {
     Database db = await instance.db;
     await db.delete(tableName, where: 'id=?', whereArgs: [id]);

@@ -5,8 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:money_book/item.dart';
 
 /// # 項目入力 ダイアログウィジェット
-/// 
+///
+/// 引数は [id] を設定、項目を新規に登録する場合は、引数を省略
+///
 /// 項目入力ダイアログを表示
+///
+/// ```
+/// showDialog(
+///   context: context,
+///   builder: (_) {
+///     return InputDialog(
+///       id: widget.item.id, // 編集時は引数に id を設定
+///     );
+/// })
+/// ```
 class InputDialog extends StatefulWidget {
   final int id;
 
@@ -14,8 +26,9 @@ class InputDialog extends StatefulWidget {
 
   @override
   InputDialogState createState() => InputDialogState();
-} 
+}
 
+/// # [InputDialog] ウィジェットから呼ばれる State(状態) クラス
 class InputDialogState extends State<InputDialog> {
   // 各入力項目の controller
   TextEditingController _dateController = TextEditingController();
@@ -45,52 +58,47 @@ class InputDialogState extends State<InputDialog> {
               // 選択した日付をダイアログに表示
               setState(() {
                 _selectDate(context).then(
-                  (date) => _dateController.text = date != null 
-                    ? DateFormat('yyyy-MM-dd').format(date)
-                    : '',
+                  (date) => _dateController.text =
+                      date != null ? DateFormat('yyyy-MM-dd').format(date) : '',
                 );
-              }); 
-            }, 
+              });
+            },
             // TextField タップ時にキーボードを表示しないように AbsorbPointer でラップ
             child: AbsorbPointer(
               child: TextField(
                 controller: _dateController,
                 maxLines: 1,
-                decoration: const InputDecoration(
-                  hintText: '日付'
-                ),
+                decoration: const InputDecoration(hintText: '日付'),
               ),
             ),
           ),
-          TextField(  // 項目入力
+          TextField(
+            // 項目入力
             controller: _nameController,
             maxLines: 1,
-            decoration: const InputDecoration(
-              hintText: '項目'
-            ),
+            decoration: const InputDecoration(hintText: '項目'),
           ),
-          TextField(  // 金額入力
+          TextField(
+            // 金額入力
             controller: _priceController,
             maxLines: 1,
-            decoration: const InputDecoration(
-              hintText: '金額'
-            ),
+            decoration: const InputDecoration(hintText: '金額'),
           ),
         ],
       ),
       actions: <Widget>[
-          FlatButton(
-            child: Text('キャンセル'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          FlatButton(
-            child:Text('OK'),
+        FlatButton(
+          child: Text('キャンセル'),
+          onPressed: () => Navigator.pop(context),
+        ),
+        FlatButton(
+            child: Text('OK'),
             onPressed: () {
               // 項目に全て入力がある場合のみ保存を受け付ける
               if (_nameController.text.isEmpty ||
                   _priceController.text.isEmpty ||
                   _dateController.text.isEmpty) {
-                  Navigator.pop(context);
+                Navigator.pop(context);
               } else {
                 Item item = Item(
                   _nameController.text,
@@ -102,9 +110,8 @@ class InputDialogState extends State<InputDialog> {
                 );
                 Navigator.pop(context, item);
               }
-            }
-          ),
+            }),
       ],
-    ); 
+    );
   }
 }
