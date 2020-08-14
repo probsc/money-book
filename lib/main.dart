@@ -1,6 +1,10 @@
+import "package:collection/collection.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
+
+import 'package:fl_chart/fl_chart.dart';
 
 import 'package:money_book/db_helper.dart';
 import 'package:money_book/input_dialog.dart';
@@ -114,6 +118,47 @@ class _MyHomePageState extends State<MyHomePage>
     // 表示月の合計金額を算出
     _monthViewItems.forEach((item) {
       _totalPrice += item.price;
+    });
+  }
+
+  // 割合を算出
+  double _getRaito(int price) {
+    return (price / _totalPrice) * 100;
+  }
+
+  // 円グラフ設定メソッド
+  List<PieChartSectionData> showingSections() {
+    // 描画する円の太さ
+    final radius = 60.0;
+
+    // 項目名ごとにグループ化
+    var groupItems = groupBy(_monthViewItems, (Item item) => item.name);
+
+    // 各項目の割合を保持
+    List<int> data = [];
+
+    // 各項目ごとの金額を取得
+    groupItems.forEach((name, items) {
+      var total = 0; //
+      items.forEach((item) {
+        total += item.price;
+      });
+      data.add((_getRaito(total).round()));
+    });
+
+    return List.generate(data.length, // グループ数
+        (index) {
+      // 項目名は固定ではないので色は適当に設定
+      return PieChartSectionData(
+        color: const Color(0xff0293ee),
+        value: data[index].toDouble(),
+        title: '${data[index].toString()}%',
+        radius: radius,
+        titleStyle: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xffffffff)),
+      );
     });
   }
 
@@ -260,6 +305,18 @@ class _MyHomePageState extends State<MyHomePage>
                     ],
                   ),
                 ),
+
+                PieChart(
+                  PieChartData(
+                    borderData: FlBorderData(
+                      show: false,
+                    ),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 40,
+                    sections: showingSections(),
+                  ),
+                ),
+
                 Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Text(
