@@ -31,9 +31,9 @@ class InputDialog extends StatefulWidget {
 /// # [InputDialog] ウィジェットから呼ばれる State(状態) クラス
 class InputDialogState extends State<InputDialog> {
   // 各入力項目の controller
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _priceController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
 
   // DatePicker 表示メソッド
   Future<DateTime> _selectDate(BuildContext context) async {

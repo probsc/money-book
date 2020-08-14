@@ -55,13 +55,13 @@ class _MyHomePageState extends State<MyHomePage>
   final _dbHelper = DbHelper.instance;
 
   // 各項目を保持するリスト
-  List<Item> _items = <Item>[];
+  List<Item> _listViewItems = <Item>[];
 
   // 月表示用リスト
-  List<Item> _monthItems = <Item>[];
+  List<Item> _monthViewItems = <Item>[];
 
   // 月表示の合計金額を保持
-  int _sumPrice = 0;
+  int _totalPrice = 0;
 
   // タブのインデックスを保持
   int _tabIndex = 0;
@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   // DB から項目を読出して一覧に加える
   void _loadItems() {
-    _items = <Item>[];
+    _listViewItems = <Item>[];
     _dbHelper.allRows().then((map) {
       // 読出時に一覧を再描画
       setState(() {
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage>
   // 一覧を更新
   void _updateListView(List<Map<String, dynamic>> map) {
     map.forEach((item) {
-      _items.add(Item.fromMap(item));
+      _listViewItems.add(Item.fromMap(item));
     });
   }
 
@@ -92,19 +92,19 @@ class _MyHomePageState extends State<MyHomePage>
   void _updateMonthView() {
     var firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
     var lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
-    _monthItems = <Item>[];
-    _sumPrice = 0;
+    _monthViewItems = <Item>[];
+    _totalPrice = 0;
 
     // 表示月に該当する日付で項目を絞り込む
-    _monthItems = _items.where((item) {
+    _monthViewItems = _listViewItems.where((item) {
       var date = DateTime.parse(item.date);
       return date.compareTo(firstOfMonth) >= 0 &&
           date.compareTo(lastOfMonth) < 0;
     }).toList();
 
     // 表示月の合計金額を算出
-    _monthItems.forEach((item) {
-      _sumPrice += item.price;
+    _monthViewItems.forEach((item) {
+      _totalPrice += item.price;
     });
   }
 
@@ -125,7 +125,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    // タブ切り替え時に ListView を毎回作成しないように DefaultTabController を使用
     return Scaffold(
       // AppBar にタブを配置
       appBar: AppBar(
@@ -172,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage>
           if (tabs[0] == tab) {
             // 一覧表示
             return ListView.builder(itemBuilder: (context, index) {
-              if (index >= _items.length) {
+              if (index >= _listViewItems.length) {
                 return null;
               }
 
@@ -180,12 +179,12 @@ class _MyHomePageState extends State<MyHomePage>
                 padding: EdgeInsets.all(1.0),
                 // 項目表示行を配置
                 child: ItemRow(
-                  item: _items[index],
+                  item: _listViewItems[index],
                   onDeleteTapped: (id) {
                     setState(() {
                       // 選択した項目を削除
                       _dbHelper.delete(id);
-                      _items.removeAt(index);
+                      _listViewItems.removeAt(index);
                       _updateMonthView();
                     });
                   },
@@ -193,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage>
                     setState(() {
                       // 選択した項目を更新
                       _dbHelper.update(item.id, item.toMap());
-                      _items[index] = item;
+                      _listViewItems[index] = item;
                       _updateMonthView();
                     });
                   },
@@ -202,6 +201,7 @@ class _MyHomePageState extends State<MyHomePage>
             });
           } else {
             // 月表示
+            // 「< 2020年 08月 >」の UI を実装
             return Column(
               children: <Widget>[
                 Padding(
@@ -257,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage>
                   padding: EdgeInsets.all(20.0),
                   child: Text(
                       // 合計金額
-                      '¥${_sumPrice.toString()}',
+                      '¥${_totalPrice.toString()}',
                       style: TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 20,
@@ -266,19 +266,19 @@ class _MyHomePageState extends State<MyHomePage>
                 // 月ごとの一覧を表示
                 Flexible(
                   child: ListView.builder(itemBuilder: (context, index) {
-                    if (index >= _monthItems.length) {
+                    if (index >= _monthViewItems.length) {
                       return null;
                     }
 
                     return Padding(
                       padding: EdgeInsets.all(1.0),
                       child: ItemRow(
-                        item: _monthItems[index],
+                        item: _monthViewItems[index],
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除
                             _dbHelper.delete(id);
-                            _items.removeAt(index);
+                            _listViewItems.removeAt(index);
                             _updateMonthView();
                           });
                         },
@@ -286,7 +286,7 @@ class _MyHomePageState extends State<MyHomePage>
                           setState(() {
                             // 選択して項目を更新
                             _dbHelper.update(item.id, item.toMap());
-                            _items[index] = item;
+                            _listViewItems[index] = item;
                             _updateMonthView();
                           });
                         },
