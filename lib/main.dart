@@ -128,31 +128,33 @@ class _MyHomePageState extends State<MyHomePage>
 
   // 円グラフ設定メソッド
   List<PieChartSectionData> showingSections() {
-    // 描画する円の太さ
-    final radius = 60.0;
+    // 描画する円の大きさ
+    final radius = 100.0;
 
     // 項目名ごとにグループ化
     var groupItems = groupBy(_monthViewItems, (Item item) => item.name);
 
-    // 各項目の割合を保持
-    List<int> data = [];
+    // 各項目の項目名と合計金額を保持
+    List<Map<String, int>> groupTotals = List<Map<String, int>>();
+    List<String> keys = [];
 
     // 各項目ごとの金額を取得
     groupItems.forEach((name, items) {
-      var total = 0; //
+      int total = 0;
       items.forEach((item) {
         total += item.price;
       });
-      data.add((_getRaito(total).round()));
+      keys.add(name);
+      groupTotals.add({name: total});
     });
 
-    return List.generate(data.length, // グループ数
+    return List.generate(groupTotals.length, // グループ数
         (index) {
-      // 項目名は固定ではないので色は適当に設定
       return PieChartSectionData(
         color: const Color(0xff0293ee),
-        value: data[index].toDouble(),
-        title: '${data[index].toString()}%',
+        value: groupTotals[index][keys[index]].toDouble(),
+        title:
+            '${keys[index]}\n${groupTotals[index][keys[index]]}円', // 項目名と合計金額を表示
         radius: radius,
         titleStyle: TextStyle(
             fontSize: 16,
@@ -311,7 +313,7 @@ class _MyHomePageState extends State<MyHomePage>
                     borderData: FlBorderData(
                       show: false,
                     ),
-                    sectionsSpace: 0,
+                    sectionsSpace: 3,
                     centerSpaceRadius: 40,
                     sections: showingSections(),
                   ),
