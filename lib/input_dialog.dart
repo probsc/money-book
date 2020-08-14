@@ -39,6 +39,7 @@ class InputDialogState extends State<InputDialog> {
   Future<DateTime> _selectDate(BuildContext context) async {
     final DateTime selected = await showDatePicker(
       context: context,
+      locale: const Locale('ja'), // DatePicker を日本語化
       initialDate: DateTime.now(),
       firstDate: DateTime(DateTime.now().year),
       lastDate: DateTime(DateTime.now().year + 1),
