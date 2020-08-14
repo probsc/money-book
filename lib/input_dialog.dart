@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:money_book/item.dart';
@@ -31,14 +32,15 @@ class InputDialog extends StatefulWidget {
 /// # [InputDialog] ウィジェットから呼ばれる State(状態) クラス
 class InputDialogState extends State<InputDialog> {
   // 各入力項目の controller
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _priceController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
 
   // DatePicker 表示メソッド
   Future<DateTime> _selectDate(BuildContext context) async {
     final DateTime selected = await showDatePicker(
       context: context,
+      locale: const Locale('ja'), // DatePicker を日本語化
       initialDate: DateTime.now(),
       firstDate: DateTime(DateTime.now().year),
       lastDate: DateTime(DateTime.now().year + 1),
@@ -81,7 +83,12 @@ class InputDialogState extends State<InputDialog> {
           TextField(
             // 金額入力
             controller: _priceController,
+            keyboardType: TextInputType.number, // 入力キーボードを数字のみに制限
             maxLines: 1,
+            // 入力は数字のみ受け付ける
+            inputFormatters: <TextInputFormatter>[
+              WhitelistingTextInputFormatter.digitsOnly,
+            ],
             decoration: const InputDecoration(hintText: '金額'),
           ),
         ],

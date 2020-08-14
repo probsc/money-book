@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 
 import 'package:grouped_list/grouped_list.dart';
@@ -24,6 +25,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      // MaterialApp で日本語対応をサポート
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('ja'),
+      ],
       home: MyHomePage(),
     );
   }
@@ -58,13 +67,13 @@ class _MyHomePageState extends State<MyHomePage>
   final _dbHelper = DbHelper.instance;
 
   // 各項目を保持するリスト
-  List<Item> _items = <Item>[];
+  List<Item> _listViewItems = <Item>[];
 
   // 月表示用リスト
-  List<Item> _monthItems = <Item>[];
+  List<Item> _monthViewItems = <Item>[];
 
   // 月表示の合計金額を保持
-  int _sumPrice = 0;
+  int _totalPrice = 0;
 
   // タブのインデックスを保持
   int _tabIndex = 0;
@@ -74,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   // DB から項目を読出して一覧に加える
   void _loadItems() {
-    _items = <Item>[];
+    _listViewItems = <Item>[];
     _dbHelper.allRows().then((map) {
       // 読出時に一覧を再描画
       setState(() {
@@ -87,29 +96,29 @@ class _MyHomePageState extends State<MyHomePage>
   // 一覧を更新
   void _updateListView(List<Map<String, dynamic>> map) {
     map.forEach((item) {
-      _items.add(Item.fromMap(item));
+      _listViewItems.add(Item.fromMap(item));
     });
     //　日付が古い順にソート
-    _items.sort((a, b) => a.date.compareTo(b.date));
+    _listViewItems.sort((a, b) => a.date.compareTo(b.date));
   }
 
   // 表示月の一覧を更新
   void _updateMonthView() {
-    var firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
-    var lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
-    _monthItems = <Item>[];
-    _sumPrice = 0;
+    final firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
+    final lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
+    _monthViewItems = <Item>[];
+    _totalPrice = 0;
 
     // 表示月に該当する日付で項目を絞り込む
-    _monthItems = _items.where((item) {
-      var date = DateTime.parse(item.date);
+    _monthViewItems = _listViewItems.where((item) {
+      final date = DateTime.parse(item.date);
       return date.compareTo(firstOfMonth) >= 0 &&
           date.compareTo(lastOfMonth) < 0;
     }).toList();
 
     // 表示月の合計金額を算出
-    _monthItems.forEach((item) {
-      _sumPrice += item.price;
+    _monthViewItems.forEach((item) {
+      _totalPrice += item.price;
     });
   }
 
@@ -158,7 +167,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    // タブ切り替え時に ListView を毎回作成しないように DefaultTabController を使用
     return Scaffold(
       // AppBar にタブを配置
       appBar: AppBar(
@@ -208,7 +216,7 @@ class _MyHomePageState extends State<MyHomePage>
               padding: EdgeInsets.all(10.0),
               child: GroupedListView<dynamic, String>(
                 groupBy: (element) => element.date, // 日付でグループ化
-                elements: _items,
+                elements: _listViewItems,
                 order: GroupedListOrder.ASC, // 並び順を日付を古い順に設定
                 groupSeparatorBuilder: (String date) {
                   // グループヘッダーに背景色を設定するために Container をラップ
@@ -226,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage>
                 },
                 // 項目
                 indexedItemBuilder: (context, element, index) {
-                  if (_items.length == 0) {
+                  if (_listViewItems.length == 0) {
                     return null;
                   }
                   return Container(
@@ -234,21 +242,19 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: EdgeInsets.all(1.0),
                       // 項目表示行を配置
                       child: ItemRow(
-                        item: _items[index],
+                        item: _listViewItems[index],
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除
                             _dbHelper.delete(id);
-                            _items.removeAt(index);
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                         onItemEdited: (item) {
                           setState(() {
                             // 選択した項目を更新
                             _dbHelper.update(item.id, item.toMap());
-                            _items[index] = item;
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                       ),
@@ -263,6 +269,7 @@ class _MyHomePageState extends State<MyHomePage>
             );
           } else {
             // 月表示
+            // 「< 2020年 08月 >」の UI を実装
             return Column(
               children: <Widget>[
                 Padding(
@@ -275,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage>
                         onPressed: () {
                           // 先月に変更
                           setState(() {
-                            var newDate = DateTime(_currentDate.year,
+                            final newDate = DateTime(_currentDate.year,
                                 _currentDate.month - 1, _currentDate.day);
                             _currentDate = newDate;
                             _updateMonthView();
@@ -298,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage>
                         onPressed: () {
                           // 来月に変更
                           setState(() {
-                            var newDate = DateTime(_currentDate.year,
+                            final newDate = DateTime(_currentDate.year,
                                 _currentDate.month + 1, _currentDate.day);
                             _currentDate = newDate;
                             _updateMonthView();
@@ -318,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage>
                   padding: EdgeInsets.all(20.0),
                   child: Text(
                       // 合計金額
-                      '¥${_sumPrice.toString()}',
+                      '¥${_totalPrice.toString()}',
                       style: TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 20,
@@ -327,28 +334,26 @@ class _MyHomePageState extends State<MyHomePage>
                 // 月ごとの一覧を表示
                 Flexible(
                   child: ListView.builder(itemBuilder: (context, index) {
-                    if (index >= _monthItems.length) {
+                    if (index >= _monthViewItems.length) {
                       return null;
                     }
 
                     return Padding(
                       padding: EdgeInsets.all(1.0),
                       child: MonthItemRow(
-                        item: _monthItems[index],
+                        item: _monthViewItems[index],
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除
                             _dbHelper.delete(id);
-                            _items.removeAt(index);
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                         onItemEdited: (item) {
                           setState(() {
                             // 選択して項目を更新
                             _dbHelper.update(item.id, item.toMap());
-                            _items[index] = item;
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                       ),
