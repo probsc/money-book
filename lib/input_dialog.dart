@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import 'package:money_book/item.dart';
@@ -82,7 +83,12 @@ class InputDialogState extends State<InputDialog> {
           TextField(
             // 金額入力
             controller: _priceController,
+            keyboardType: TextInputType.number, // 入力キーボードを数字のみに制限
             maxLines: 1,
+            // 入力は数字のみ受け付ける
+            inputFormatters: <TextInputFormatter>[
+              WhitelistingTextInputFormatter.digitsOnly,
+            ],
             decoration: const InputDecoration(hintText: '金額'),
           ),
         ],
