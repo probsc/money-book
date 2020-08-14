@@ -99,14 +99,14 @@ class _MyHomePageState extends State<MyHomePage>
 
   // 表示月の一覧を更新
   void _updateMonthView() {
-    var firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
-    var lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
+    final firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
+    final lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
     _monthViewItems = <Item>[];
     _totalPrice = 0;
 
     // 表示月に該当する日付で項目を絞り込む
     _monthViewItems = _listViewItems.where((item) {
-      var date = DateTime.parse(item.date);
+      final date = DateTime.parse(item.date);
       return date.compareTo(firstOfMonth) >= 0 &&
           date.compareTo(lastOfMonth) < 0;
     }).toList();
@@ -193,16 +193,14 @@ class _MyHomePageState extends State<MyHomePage>
                     setState(() {
                       // 選択した項目を削除
                       _dbHelper.delete(id);
-                      _listViewItems.removeAt(index);
-                      _updateMonthView();
+                      _loadItems();
                     });
                   },
                   onItemEdited: (item) {
                     setState(() {
                       // 選択した項目を更新
                       _dbHelper.update(item.id, item.toMap());
-                      _listViewItems[index] = item;
-                      _updateMonthView();
+                      _loadItems();
                     });
                   },
                 ),
@@ -223,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage>
                         onPressed: () {
                           // 先月に変更
                           setState(() {
-                            var newDate = DateTime(_currentDate.year,
+                            final newDate = DateTime(_currentDate.year,
                                 _currentDate.month - 1, _currentDate.day);
                             _currentDate = newDate;
                             _updateMonthView();
@@ -246,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage>
                         onPressed: () {
                           // 来月に変更
                           setState(() {
-                            var newDate = DateTime(_currentDate.year,
+                            final newDate = DateTime(_currentDate.year,
                                 _currentDate.month + 1, _currentDate.day);
                             _currentDate = newDate;
                             _updateMonthView();
@@ -287,16 +285,14 @@ class _MyHomePageState extends State<MyHomePage>
                           setState(() {
                             // 選択した項目を削除
                             _dbHelper.delete(id);
-                            _listViewItems.removeAt(index);
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                         onItemEdited: (item) {
                           setState(() {
                             // 選択して項目を更新
                             _dbHelper.update(item.id, item.toMap());
-                            _listViewItems[index] = item;
-                            _updateMonthView();
+                            _loadItems();
                           });
                         },
                       ),
