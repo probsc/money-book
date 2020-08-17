@@ -3,7 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 
 import 'package:money_book/db_helper.dart';
-import 'package:money_book/input_dialog.dart';
+import 'package:money_book/item_edit.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
 
@@ -308,22 +308,9 @@ class _MyHomePageState extends State<MyHomePage>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // 項目入力ダイアログを表示
-          showDialog(
-              barrierDismissible: false, // ダイアログの背景を押しても閉じないように設定
-              context: context,
-              builder: (_) {
-                return InputDialog();
-              }).then((item) {
-            setState(() {
-              if (item != null) {
-                // 新規項目を DB に保存
-                _dbHelper.insert(item.toMap());
-
-                // 一覧を更新
-                _loadItems();
-              }
-            });
-          });
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ItemEdit(),
+          ));
         },
         child: Icon(Icons.add),
       ),
