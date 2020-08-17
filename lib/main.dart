@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
@@ -237,6 +238,22 @@ class _MyHomePageState extends State<MyHomePage>
                   if (_listViewItems.length == 0) {
                     return null;
                   }
+
+                  // 日付部分を交互に背景色なし、薄い背景色にするため各グループごとの index を取得
+                  var groupItems =
+                      groupBy(_listViewItems, (Item item) => item.date);
+                  int itemIndex = 0;
+
+                  // グループごとの index を保持
+                  List<int> itemIndexs = [];
+                  groupItems.forEach((date, items) {
+                    itemIndex = 0;
+                    items.forEach((item) {
+                      itemIndexs.add(itemIndex);
+                      itemIndex++;
+                    });
+                  });
+
                   return Container(
                     child: Padding(
                       padding: EdgeInsets.all(1.0),
@@ -259,8 +276,8 @@ class _MyHomePageState extends State<MyHomePage>
                         },
                       ),
                     ),
-                    // 背景色設定
-                    color: (index % 2 == 0)
+                    // 背景色設定(交互に背景色なし、薄い背景色に設定)
+                    color: (itemIndexs[index] % 2 == 0)
                         ? Colors.transparent
                         : Colors.grey[300],
                   );
