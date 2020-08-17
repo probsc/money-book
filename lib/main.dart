@@ -121,11 +121,6 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  // 割合を算出
-  double _getRaito(int price) {
-    return (price / _totalPrice) * 100;
-  }
-
   // 円グラフ設定メソッド
   List<PieChartSectionData> showingSections() {
     // 描画する円の大きさ
