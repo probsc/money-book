@@ -36,15 +36,32 @@ class DbHelper {
   /// DB 作成メソッド
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-          CREATE TABLE IF NOT EXISTS "items" (
-          "id" INTEGER NOT NULL UNIQUE,
-          "name" TEXT NOT NULL,
-          "price" INTEGER NOT NULL,
-          "date" TEXT NOT NULL,
-          "created_at" TEXT NOT NULL,
-          "updated_at" TEXT NOT NULL,
-          PRIMARY KEY("id" AUTOINCREMENT)
+        CREATE TABLE IF NOT EXISTS "genre" (
+        "id"	INTEGER NOT NULL UNIQUE,
+        "genre"	TEXT NOT NULL,
+        "created_at"	TEXT NOT NULL,
+        "updated_at"	TEXT NOT NULL,
+        PRIMARY KEY("id" AUTOINCREMENT)
       );
+        CREATE TABLE IF NOT EXISTS "items" (
+        "id"	INTEGER NOT NULL UNIQUE,
+        "genreId"	INTEGER NOT NULL,
+        "name"	TEXT NOT NULL,
+        "price"	INTEGER NOT NULL,
+        "date"	TEXT NOT NULL,
+        "created_at"	TEXT NOT NULL,
+        "updated_at"	TEXT NOT NULL,
+        PRIMARY KEY("id" AUTOINCREMENT),
+        FOREIGN KEY("genreId") REFERENCES "genre"("id")
+      );
+        INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');
+        INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');
     ''');
   }
 
