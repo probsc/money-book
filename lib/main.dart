@@ -182,6 +182,9 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // キーボード表示時に、フローティングボタンが画面にせり上がらないように設定
+      resizeToAvoidBottomInset: false,
+
       // AppBar にタブを配置
       appBar: AppBar(
           flexibleSpace: Padding(
