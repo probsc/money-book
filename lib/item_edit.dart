@@ -35,7 +35,20 @@ class ItemEditState extends State<ItemEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Image.asset(
+              'images/trash.png',
+              width: 20,
+              height: 20,
+            ),
+            onPressed: () {
+              // TODO: 削除
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: <Widget>[
           // 日付入力
