@@ -20,7 +20,7 @@ class ItemEditState extends State<ItemEdit> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
-  int selectedIndex = 0;
+  int _selectedIndex = 0;
 
   // DatePicker 表示メソッド
   Future<DateTime> _selectDate(BuildContext context) async {
@@ -41,16 +41,22 @@ class ItemEditState extends State<ItemEdit> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
-            icon: Image.asset(
-              'images/trash.png',
-              width: 20,
-              height: 20,
+          // 編集時のみ削除ボタンを表示
+          Visibility(
+            visible: widget.id != null, // id があれば表示
+            // 削除ボタン
+            child: IconButton(
+              icon: Image.asset(
+                'images/trash.png',
+                width: 20,
+                height: 20,
+              ),
+              onPressed: () {
+                // 項目を削除
+                Navigator.of(context).pop(widget.id);
+              },
             ),
-            onPressed: () {
-              // TODO: 削除
-            },
-          ),
+          )
         ],
       ),
       body: Column(
@@ -177,7 +183,7 @@ class ItemEditState extends State<ItemEdit> {
                       Navigator.pop(context);
                     } else {
                       Item item = Item(
-                        selectedIndex + 1,
+                        _selectedIndex + 1,
                         _nameController.text,
                         int.parse(_priceController.text),
                         _dateController.text,
@@ -203,7 +209,7 @@ class ItemEditState extends State<ItemEdit> {
 
   void changeIndex(int index) {
     setState(() {
-      selectedIndex = index;
+      _selectedIndex = index;
     });
   }
 
@@ -214,7 +220,7 @@ class ItemEditState extends State<ItemEdit> {
       },
       shape: RoundedRectangleBorder(
         side: BorderSide(
-            color: selectedIndex == index ? Colors.black : Colors.transparent),
+            color: _selectedIndex == index ? Colors.black : Colors.transparent),
       ),
       color: color,
       child: Text(name),

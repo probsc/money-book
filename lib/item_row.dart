@@ -37,40 +37,52 @@ class ItemRowState extends State<ItemRow> {
         // 項目入力ダイアログを表示
         onTap: () async {
           // 項目入力画面に遷移
-          final item = await Navigator.of(context).push(MaterialPageRoute(
+          final result = await Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => ItemEdit(
               id: widget.item.id, // 編集時は項目の id を引数にする
             ),
           ));
           setState(() {
-            if (item != null) {
-              // 項目を編集
-              widget.onItemEdited(item);
+            if (result != null) {
+              // 項目入力画面から Item を受け取った場合は更新処理,それ以外は削除処理
+              if (result is Item) {
+                // 項目を編集
+                widget.onItemEdited(result);
+              } else {
+                // 項目を削除
+                widget.onDeleteTapped(result);
+              }
             }
           });
         },
         child:
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          // 日付
-          Expanded(flex: 1, child: Text(widget.item.date)),
-          // 項目名
-          Expanded(flex: 1, child: Text(widget.item.name)),
-          // 金額
-          Expanded(flex: 1, child: Text('¥${widget.item.price.toString()}')),
-          // 削除アイコン
+          // 日付/ジャンルを表示
           Expanded(
               flex: 1,
-              child: IconButton(
-                onPressed: () {
-                  widget.onDeleteTapped(widget.item.id);
-                },
-                icon: Image.asset(
-                  'images/cross.png',
-                  color: Colors.black,
-                  width: 20,
-                  height: 20,
-                ),
+              child: Column(
+                children: <Widget>[
+                  // 日付
+                  Text(widget.item.date),
+                  // ジャンル
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: Text('ジャンル'),
+                    ),
+                    color: Colors.cyan,
+                  ),
+                ],
               )),
+          // 項目名
+          Expanded(
+              flex: 1,
+              child: Text(
+                widget.item.name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+          // 金額
+          Expanded(flex: 1, child: Text('¥${widget.item.price.toString()}')),
         ]),
       ),
     ));
