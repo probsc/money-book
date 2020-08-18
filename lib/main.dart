@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage>
   // 円グラフ設定メソッド
   List<PieChartSectionData> showingSections() {
     // 描画する円の大きさ
-    final radius = 100.0;
+    final radius = 80.0;
 
     // 項目名ごとにグループ化
     var groupItems = groupBy(_monthViewItems, (Item item) => item.name);
@@ -257,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage>
             return Column(
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -318,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
 
                 Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
                       // 合計金額
                       '¥${_totalPrice.toString()}',
