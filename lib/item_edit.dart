@@ -18,6 +18,8 @@ class ItemEditState extends State<ItemEdit> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
+  int selectedIndex = 0;
+
   // DatePicker 表示メソッド
   Future<DateTime> _selectDate(BuildContext context) async {
     final DateTime selected = await showDatePicker(
@@ -116,8 +118,70 @@ class ItemEditState extends State<ItemEdit> {
               )
             ],
           ),
+          // ジャンル入力
+          Container(
+            width: double.infinity,
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                'ジャンル',
+                textAlign: TextAlign.left,
+              ),
+            ), 
+          ),
+          Container(
+            child: Wrap(
+              direction: Axis.horizontal,
+              spacing: 10.0,
+              runSpacing: 4.0,
+              children: <Widget>[
+                // 各ジャンルのボタンを配置
+                genreButton('食費', 0, const Color(0xFFFFFABC)),
+                genreButton('住居費', 1, const Color(0xFFE3C2C2)),
+                genreButton('光熱費', 2, const Color(0xFFFCFC69)),
+                genreButton('交通費', 3, const Color(0xFFBAFFC2)),
+                genreButton('被服費', 4, const Color(0xFFB9DFFF)),
+                genreButton('趣味', 5, const Color(0xFF7CEBFF)),
+                genreButton('日用品', 6, const Color(0xFFFF7979)),
+                genreButton('雑費', 7, const Color(0xFFFFD6FC)),
+              ],
+            ),
+          ),
+          SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: EdgeInsets.all(30.0),
+                child: RaisedButton(
+                  onPressed: () {},
+                  child: Text(
+                    '保存',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                ),
+              )),
         ],
       ),
+    );
+  }
+
+  void changeIndex(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
+  Widget genreButton(String name, int index, Color color) {
+    return RaisedButton(
+      onPressed: () {
+        changeIndex(index);
+      },
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+            color: selectedIndex == index ? Colors.black : Colors.transparent),
+      ),
+      color: color,
+      child: Text(name),
     );
   }
 }
