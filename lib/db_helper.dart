@@ -7,7 +7,8 @@ import 'package:path_provider/path_provider.dart';
 /// #  DB 関連クラス
 class DbHelper {
   final String dbName = 'money_book.db';
-  final String tableName = 'items';
+  final String itemsTableName = 'items';
+  final String genreTableName = 'genre';
 
   // シングルトン
   DbHelper._privateConstructor();
@@ -35,14 +36,9 @@ class DbHelper {
 
   /// DB 作成メソッド
   Future _onCreate(Database db, int version) async {
-    await db.execute('''
-        CREATE TABLE IF NOT EXISTS "genre" (
-        "id"	INTEGER NOT NULL UNIQUE,
-        "genre"	TEXT NOT NULL,
-        "created_at"	TEXT NOT NULL,
-        "updated_at"	TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
-      );
+    var batch = db.batch();
+    // 項目テーブル作成
+    batch.execute('''
         CREATE TABLE IF NOT EXISTS "items" (
         "id"	INTEGER NOT NULL UNIQUE,
         "genreId"	INTEGER NOT NULL,
@@ -54,38 +50,53 @@ class DbHelper {
         PRIMARY KEY("id" AUTOINCREMENT),
         FOREIGN KEY("genreId") REFERENCES "genre"("id")
       );
-        INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');
-        INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');
     ''');
+    // ジャンルテーブル作成
+    batch.execute('''
+        CREATE TABLE IF NOT EXISTS "genre" (
+        "id"	INTEGER NOT NULL UNIQUE,
+        "genre"	TEXT NOT NULL,
+        "created_at"	TEXT NOT NULL,
+        "updated_at"	TEXT NOT NULL,
+        PRIMARY KEY("id" AUTOINCREMENT)
+      );
+    ''');
+    // ジャンルを insert
+    batch.rawInsert('''INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert('''INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+
+    // SQL実行
+    await batch.commit();
   }
 
+  // 項目テーブル関連
   /// # データ追加 メソッド
   Future<void> insert(Map<String, dynamic> row) async {
     Database db = await instance.db;
-    await db.insert(tableName, row);
+    await db.insert(itemsTableName, row);
   }
 
   /// # 全件取得 メソッド
   Future<List<Map<String, dynamic>>> allRows() async {
     Database db = await instance.db; 
-    return await db.query(tableName);
+    return await db.query(itemsTableName);
   }
 
   /// # データ更新メソッド
   Future<void> update(int id, Map<String, dynamic> row) async {
     Database db = await instance.db;
-    await db.update(tableName, row, where: 'id=?', whereArgs: [id]);
+    await db.update(itemsTableName, row, where: 'id=?', whereArgs: [id]);
   }
 
   /// # データ削除メソッド
   Future<void> delete(int id) async {
     Database db = await instance.db;
-    await db.delete(tableName, where: 'id=?', whereArgs: [id]);
+    await db.delete(itemsTableName, where: 'id=?', whereArgs: [id]);
   }
 }
