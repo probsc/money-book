@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item.dart';
+import 'package:money_book/item_edit.dart';
 
 /// # 項目表示行ウィジェット
 ///
@@ -35,21 +35,18 @@ class ItemRowState extends State<ItemRow> {
       color: Colors.transparent,
       child: GestureDetector(
         // 項目入力ダイアログを表示
-        onTap: () {
-          showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (_) {
-                return InputDialog(
-                  id: widget.item.id, // 編集時は項目の id を引数にする
-                );
-              }).then((item) {
-            setState(() {
-              if (item != null) {
-                // 項目を編集
-                widget.onItemEdited(item);
-              }
-            });
+        onTap: () async {
+          // 項目入力画面に遷移
+          final item = await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ItemEdit(
+              id: widget.item.id, // 編集時は項目の id を引数にする
+            ),
+          ));
+          setState(() {
+            if (item != null) {
+              // 項目を編集
+              widget.onItemEdited(item);
+            }
           });
         },
         child:

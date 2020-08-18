@@ -306,11 +306,20 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       // フローティングボタン(新規項目追加)
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 項目入力ダイアログを表示
-          Navigator.of(context).push(MaterialPageRoute(
+        onPressed: () async {
+          // 項目入力画面に遷移
+          final item = await Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => ItemEdit(),
           ));
+          setState(() {
+            if (item != null) {
+              // 新規項目を DB に保存
+              _dbHelper.insert(item.toMap());
+
+              // 一覧を更新
+              _loadItems();
+            }
+          });
         },
         child: Icon(Icons.add),
       ),

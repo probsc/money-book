@@ -26,12 +26,9 @@ class DbHelper {
   _initDatabase() async {
     Directory documentDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentDirectory.path, dbName);
-    
+
     // DB が存在しない場合、DB を新規に作成
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate);
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   /// DB 作成メソッド
@@ -62,14 +59,22 @@ class DbHelper {
       );
     ''');
     // ジャンルを insert
-    batch.rawInsert('''INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
-    batch.rawInsert('''INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+    batch.rawInsert(
+        '''INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
 
     // SQL実行
     await batch.commit();
@@ -84,7 +89,7 @@ class DbHelper {
 
   /// # 全件取得 メソッド
   Future<List<Map<String, dynamic>>> allRows() async {
-    Database db = await instance.db; 
+    Database db = await instance.db;
     return await db.query(itemsTableName);
   }
 

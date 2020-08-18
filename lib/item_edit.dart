@@ -2,6 +2,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:money_book/item.dart';
+
 class ItemEdit extends StatefulWidget {
   final int id;
 
@@ -35,6 +37,8 @@ class ItemEditState extends State<ItemEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // キーボード表示時に、項目入力画面がせり上がらないように設定
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         actions: <Widget>[
           IconButton(
@@ -140,7 +144,7 @@ class ItemEditState extends State<ItemEdit> {
                 'ジャンル',
                 textAlign: TextAlign.left,
               ),
-            ), 
+            ),
           ),
           Container(
             child: Wrap(
@@ -165,7 +169,26 @@ class ItemEditState extends State<ItemEdit> {
               child: Padding(
                 padding: EdgeInsets.all(30.0),
                 child: RaisedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // 項目に全て入力がある場合のみ保存を受け付ける
+                    if (_nameController.text.isEmpty ||
+                        _priceController.text.isEmpty ||
+                        _dateController.text.isEmpty) {
+                      Navigator.pop(context);
+                    } else {
+                      Item item = Item(
+                        selectedIndex + 1,
+                        _nameController.text,
+                        int.parse(_priceController.text),
+                        _dateController.text,
+                        DateTime.now(),
+                        DateTime.now(),
+                        widget?.id,
+                      );
+                      // 入力した項目データを前画面に返す
+                      Navigator.of(context).pop(item);
+                    }
+                  },
                   child: Text(
                     '保存',
                     style: TextStyle(

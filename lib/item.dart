@@ -6,17 +6,19 @@ import 'package:intl/intl.dart';
 ///
 /// 項目の情報を保持
 ///
-/// id:[id], 項目名:[name], 金額:[price],
+/// id:[id], genreId:[genreId], 項目名:[name], 金額:[price],
 /// 日付:[date], 登録日付:[createdAt],  更新日付:[updatedAt]
 class Item {
   int id;
+  int genreId;
   String name;
   int price;
   String date;
   DateTime createdAt;
   DateTime updatedAt;
 
-  Item(this.name, this.price, this.date, this.createdAt, this.updatedAt,
+  Item(this.genreId, this.name, this.price, this.date, this.createdAt,
+      this.updatedAt,
       [this.id]);
 
   /// # item を Map<String, dynamic> に変換
@@ -26,6 +28,7 @@ class Item {
   /// ```
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
+      'genreId': genreId,
       'name': name,
       'price': price,
       'date': date,
@@ -42,6 +45,7 @@ class Item {
   /// ```
   Item.fromMap(Map<String, dynamic> map)
       : id = map['id'],
+        genreId = map['genreId'],
         name = map['name'],
         price = map['price'],
         date = map['date'],
