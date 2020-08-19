@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 
 import 'package:money_book/db_helper.dart';
+import 'package:money_book/genre.dart';
 import 'package:money_book/item_edit.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
@@ -72,11 +73,24 @@ class _MyHomePageState extends State<MyHomePage>
   // 月表示の合計金額を保持
   int _totalPrice = 0;
 
+  // ジャンルを保持するリスト
+  Map<int, Genre> _genres = Map<int, Genre>();
+
   // タブのインデックスを保持
   int _tabIndex = 0;
 
   // 表示月を保持
   DateTime _currentDate = DateTime.now();
+
+  // ジャンルを DB から取得
+  void _loadGenres() {
+    _genres = Map<int, Genre>();
+    _dbHelper.allRowsGenre().then((map) {
+      map.forEach((genre) {
+        _genres[Genre.fromMap(genre).id] = Genre.fromMap(genre);
+      });
+    });
+  }
 
   // DB から項目を読出して一覧に加える
   void _loadItems() {
@@ -124,6 +138,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     // DB から既存の項目を読出
     _loadItems();
+    // ジャンルを読出
+    _loadGenres();
   }
 
   @override
@@ -189,6 +205,7 @@ class _MyHomePageState extends State<MyHomePage>
                 // 項目表示行を配置
                 child: ItemRow(
                   item: _listViewItems[index],
+                  genre: _genres[_monthViewItems[index].genreId],
                   onDeleteTapped: (id) {
                     setState(() {
                       // 選択した項目を削除
@@ -281,6 +298,7 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: EdgeInsets.all(1.0),
                       child: ItemRow(
                         item: _monthViewItems[index],
+                        genre: _genres[_monthViewItems[index].genreId],
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除

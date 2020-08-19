@@ -52,7 +52,8 @@ class DbHelper {
     batch.execute('''
         CREATE TABLE IF NOT EXISTS "genre" (
         "id"	INTEGER NOT NULL UNIQUE,
-        "genre"	TEXT NOT NULL,
+        "name"	TEXT NOT NULL,
+        "color"	TEXT NOT NULL,
         "created_at"	TEXT NOT NULL,
         "updated_at"	TEXT NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT)
@@ -60,21 +61,21 @@ class DbHelper {
     ''');
     // ジャンルを insert
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (1,'食費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (1,'食費','0xFFFFFABC','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (2,'住居費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (2,'住居費','0xFFE3C2C2','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (3,'光熱費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (3,'光熱費','0xFFFCFC69','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (4,'交通費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (4,'交通費','0xFFBAFFC2','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (5,'被服費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (5,'被服費','0xFFB9DFFF','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (6,'趣味','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (6,'趣味','0xFF7CEBFF','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (7,'日用品','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (7,'日用品','0xFFFF7979','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
     batch.rawInsert(
-        '''INSERT INTO "genre" VALUES (8,'雑費','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
+        '''INSERT INTO "genre" VALUES (8,'雑費','0xFFFFD6FC','2020-08-10 10:00:00','2020-08-10 10:00:00');''');
 
     // SQL実行
     await batch.commit();
@@ -103,5 +104,18 @@ class DbHelper {
   Future<void> delete(int id) async {
     Database db = await instance.db;
     await db.delete(itemsTableName, where: 'id=?', whereArgs: [id]);
+  }
+
+  // ジャンルテーブル
+  /// # 全件取得 メソッド
+  Future<List<Map<String, dynamic>>> allRowsGenre() async {
+    Database db = await instance.db;
+    return await db.query(genreTableName);
+  }
+
+  /// # ジャンル取得メソッド
+  Future<String> selectGenreName (int id) async {
+    Database db = await instance.db;
+    await db.query('SELECT genre FROM $genreTableName WHERE id=$id');
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:money_book/genre.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_edit.dart';
 
@@ -14,11 +15,13 @@ import 'package:money_book/item_edit.dart';
 /// ```
 class ItemRow extends StatefulWidget {
   final Item item;
+  final Genre genre;
   final Function(int) onDeleteTapped;
   final Function(Item) onItemEdited;
 
   ItemRow({
     @required this.item,
+    @required this.genre,
     @required this.onDeleteTapped,
     @required this.onItemEdited,
   });
@@ -66,11 +69,16 @@ class ItemRowState extends State<ItemRow> {
                   Text(widget.item.date),
                   // ジャンル
                   Container(
+                    width: 60,
                     child: Padding(
                       padding: EdgeInsets.all(5.0),
-                      child: Text('ジャンル'),
+                      child: Text(
+                        widget.genre.name,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    color: Colors.cyan,
+                    // ジャンルごとの色を設定
+                    color: Color(widget.genre.color),
                   ),
                 ],
               )),
