@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
+      // ロケールは日本を設定
       supportedLocales: [
         const Locale('ja'),
       ],
@@ -105,14 +106,21 @@ class _MyHomePageState extends State<MyHomePage>
 
   // 表示月の一覧を更新
   void _updateMonthView() {
+    // 月初日
     final firstOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
+    // 月末日
     final lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
+
+    // 表示月の一覧を初期化
     _monthViewItems = <Item>[];
+    // 月表示の合計金額を保持する変数
     _totalPrice = 0;
 
     // 表示月に該当する日付で項目を絞り込む
     _monthViewItems = _listViewItems.where((item) {
       final date = DateTime.parse(item.date);
+
+      // 表示月の月初日 < dete < 表示月の月末日 で絞込
       return date.compareTo(firstOfMonth) >= 0 &&
           date.compareTo(lastOfMonth) < 0;
     }).toList();
@@ -151,27 +159,33 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  // ウィジェットが作成時に呼ばれるメソッド
   @override
   void initState() {
     super.initState();
+    // TabController のインスタンスを生成
     _tabController = TabController(vsync: this, length: tabs.length);
 
     // DB から既存の項目を読出
     _loadItems();
   }
 
+  // ウィジェットが破棄時に呼ばれるメソッド
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
   }
 
+  // ウィジェットを構築するメソッド
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar にタブを配置
+      // AppBar を設定
       appBar: AppBar(
+          // タブの UI を実装
           flexibleSpace: Padding(
+              // ステータスバーに重ならないようにパディングを入れて位置を調整
               padding: EdgeInsets.only(top: 27),
               child: Column(children: <Widget>[
                 Container(
@@ -182,37 +196,45 @@ class _MyHomePageState extends State<MyHomePage>
                       FlatButton(
                         // 選択された場合はボタンの背景色を白に変更する
                         color: _tabIndex == 0 ? Colors.white : Colors.blue,
+                        // タブ [一覧] 押下時処理
                         onPressed: () {
                           _tabController.animateTo(0);
+                          // インデックスを設定して再描画
                           setState(() {
                             _tabIndex = 0;
                           });
                         },
+                        // ボタンに 「一覧」を表示
                         child: Text(tabs[0].text),
                       ),
                       // 月表示ボタン
                       FlatButton(
                         // 選択された場合はボタンの背景色を白に変更する
                         color: _tabIndex == 1 ? Colors.white : Colors.blue,
+                        // タブ [月表示] 押下時処理
                         onPressed: () {
                           _tabController.animateTo(1);
+                          // インデックスを設定して再描画
                           setState(() {
                             _tabIndex = 1;
                           });
                         },
+                        // ボタンに 「月表示」を表示
                         child: Text(tabs[1].text),
                       )
                     ],
                   ),
                 ),
               ]))),
+      // [一覧][月表示] の UI を実装
       body: TabBarView(
         controller: _tabController,
         // タブのみでスクロールするように設定
         physics: const NeverScrollableScrollPhysics(),
         children: tabs.map((tab) {
+          // 一覧表示の UI を配置
           if (tabs[0] == tab) {
-            // グループヘッダー (日付)
+            // グループヘッダー「2020-08-01(土)」を配置
             return Padding(
               padding: EdgeInsets.all(10.0),
               child: GroupedListView<dynamic, String>(
@@ -222,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage>
                 groupSeparatorBuilder: (String date) {
                   // グループヘッダーに背景色を設定するために Container をラップ
                   return Container(
+                    // 日付を表示
                     child: Text(
                       '$date ${_getWeekday(date)}',
                       textAlign: TextAlign.center,
@@ -230,10 +253,10 @@ class _MyHomePageState extends State<MyHomePage>
                         fontSize: 20,
                       ),
                     ),
-                    color: Colors.grey, // 背景色
+                    color: Colors.grey, // 背景色を設定
                   );
                 },
-                // 項目
+                // 項目表示行を生成
                 indexedItemBuilder: (context, element, index) {
                   if (_listViewItems.length == 0) {
                     return null;
@@ -260,6 +283,7 @@ class _MyHomePageState extends State<MyHomePage>
                       // 項目表示行を配置
                       child: ItemRow(
                         item: _listViewItems[index],
+                        // 削除ボタン押下時の処理
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除
@@ -267,6 +291,7 @@ class _MyHomePageState extends State<MyHomePage>
                             _loadItems();
                           });
                         },
+                        // 項目行の押下時の処理
                         onItemEdited: (item) {
                           setState(() {
                             // 選択した項目を更新
@@ -285,8 +310,7 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             );
           } else {
-            // 月表示
-            // 「< 2020年 08月 >」の UI を実装
+            // 月表示「< 2020年 08月 >」の UI を実装
             return Column(
               children: <Widget>[
                 Padding(
@@ -294,10 +318,10 @@ class _MyHomePageState extends State<MyHomePage>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      // 左矢印ボタン
+                      // 左矢印ボタンを配置
                       IconButton(
                         onPressed: () {
-                          // 先月に変更
+                          // 押下時に表示する月を前の月に変更
                           setState(() {
                             final newDate = DateTime(_currentDate.year,
                                 _currentDate.month - 1, _currentDate.day);
@@ -305,6 +329,7 @@ class _MyHomePageState extends State<MyHomePage>
                             _updateMonthView();
                           });
                         },
+                        // 左矢印の画像を設定
                         icon: Image.asset(
                           'images/left_arrow.png',
                           color: Colors.black,
@@ -312,15 +337,16 @@ class _MyHomePageState extends State<MyHomePage>
                           height: 20,
                         ),
                       ),
+                      // 表示月を配置
                       Text(DateFormat('yyyy年 MM月').format(_currentDate),
                           style: TextStyle(
                             color: Colors.blueAccent,
                             fontSize: 20,
                           )),
-                      // 右矢印ボタン
+                      // 右矢印ボタンを配置
                       IconButton(
                         onPressed: () {
-                          // 来月に変更
+                          // 押下時に表示する月を次の月に変更
                           setState(() {
                             final newDate = DateTime(_currentDate.year,
                                 _currentDate.month + 1, _currentDate.day);
@@ -328,6 +354,7 @@ class _MyHomePageState extends State<MyHomePage>
                             _updateMonthView();
                           });
                         },
+                        // 右矢印の画像を設定
                         icon: Image.asset(
                           'images/right_arrow.png',
                           color: Colors.black,
@@ -338,17 +365,18 @@ class _MyHomePageState extends State<MyHomePage>
                     ],
                   ),
                 ),
+                // 合計金額の UI を実装
                 Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Text(
-                      // 合計金額
+                      // 合計金額を表示
                       '¥${_totalPrice.toString()}',
                       style: TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 20,
                       )),
                 ),
-                // 月ごとの一覧を表示
+                // 月ごとの一覧の UI を実装
                 Flexible(
                   child: ListView.builder(itemBuilder: (context, index) {
                     if (index >= _monthViewItems.length) {
@@ -359,6 +387,7 @@ class _MyHomePageState extends State<MyHomePage>
                       padding: EdgeInsets.all(1.0),
                       child: MonthItemRow(
                         item: _monthViewItems[index],
+                        // 削除ボタン押下時の処理
                         onDeleteTapped: (id) {
                           setState(() {
                             // 選択した項目を削除
@@ -366,6 +395,7 @@ class _MyHomePageState extends State<MyHomePage>
                             _loadItems();
                           });
                         },
+                        // 項目行の押下時の処理
                         onItemEdited: (item) {
                           setState(() {
                             // 選択して項目を更新
@@ -382,16 +412,18 @@ class _MyHomePageState extends State<MyHomePage>
           }
         }).toList(),
       ),
-      // フローティングボタン(新規項目追加)
+      // フローティングボタン(新規項目追加) の UI を実装
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 項目入力ダイアログを表示
+          // 押下時に項目入力ダイアログを表示
           showDialog(
               barrierDismissible: false, // ダイアログの背景を押しても閉じないように設定
               context: context,
               builder: (_) {
+                // 表示するダイアログを設定
                 return InputDialog();
               }).then((item) {
+            // 新規項目追加時に再描画
             setState(() {
               if (item != null) {
                 // 新規項目を DB に保存

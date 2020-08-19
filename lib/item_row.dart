@@ -7,6 +7,9 @@ import 'package:money_book/item.dart';
 ///
 /// 日付、項目名、金額、削除アイコンを表示
 ///
+/// 引数:[item],[onDeleteTapped],[onItemEdited]
+/// また、[onDeleteTapped],[onItemEdited]はコールバック関数
+///
 /// ```
 /// child: ItemRow(
 ///   item: Item
@@ -17,6 +20,7 @@ class ItemRow extends StatefulWidget {
   final Function(int) onDeleteTapped;
   final Function(Item) onItemEdited;
 
+  // @required を引数につけると必須パラメータになる
   ItemRow({
     @required this.item,
     @required this.onDeleteTapped,
@@ -27,26 +31,31 @@ class ItemRow extends StatefulWidget {
   ItemRowState createState() => ItemRowState();
 }
 
+/// # [ItemRow] ウィジェットから呼ばれる State(状態) クラス
 class ItemRowState extends State<ItemRow> {
+  // ウィジェットが作成時に呼ばれるメソッド
   @override
   Widget build(BuildContext context) {
+    // 項目行の UI を実装
     return Container(
         child: Material(
       color: Colors.transparent,
       child: GestureDetector(
-        // 項目入力ダイアログを表示
+        // 項目行押下時の処理
         onTap: () {
+          // 押下時に項目入力ダイアログを表示
           showDialog(
-              barrierDismissible: false,
+              barrierDismissible: false, // ダイアログの背景を押しても閉じないように設定
               context: context,
               builder: (_) {
                 return InputDialog(
                   id: widget.item.id, // 編集時は項目の id を引数にする
                 );
               }).then((item) {
+            // 項目編集時に再描画
             setState(() {
               if (item != null) {
-                // 項目を編集
+                // 項目の編集をコールバックメソッドに通知
                 widget.onItemEdited(item);
               }
             });
@@ -66,9 +75,12 @@ class ItemRowState extends State<ItemRow> {
             child: Container(
                 alignment: Alignment.centerRight,
                 child: IconButton(
+                  // 削除ボタン押下時に処理
                   onPressed: () {
+                    // 項目の削除をコールバックメソッドに通知
                     widget.onDeleteTapped(widget.item.id);
                   },
+                  // アイコン画像を設定
                   icon: Image.asset(
                     'images/trash.png',
                     color: Colors.black,
