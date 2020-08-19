@@ -2,6 +2,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:money_book/db_helper.dart';
+import 'package:money_book/genre.dart';
 import 'package:money_book/item.dart';
 
 class ItemEdit extends StatefulWidget {
@@ -20,6 +22,10 @@ class ItemEditState extends State<ItemEdit> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
+  // DB ヘルパーのインスタンスを生成
+  DbHelper _dbHelper = DbHelper.instance;
+
+  // 選択したジャンルのインデックスを保持
   int _selectedIndex = 0;
 
   // DatePicker 表示メソッド
@@ -32,6 +38,16 @@ class ItemEditState extends State<ItemEdit> {
       lastDate: DateTime(DateTime.now().year + 1),
     );
     return selected;
+  }
+
+  // DB からジャンルを読出
+  Future<List<Genre>> _loadGenre() async {
+    var genres = <Genre>[];
+    var map = await _dbHelper.allRowsGenre();
+    map.forEach((genre) {
+      genres.add(Genre.fromMap(genre));
+    });
+    return genres;
   }
 
   @override
@@ -63,7 +79,7 @@ class ItemEditState extends State<ItemEdit> {
       ),
       body: Column(
         children: <Widget>[
-          // 日付入力
+          // 日付入力フォーム
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -105,7 +121,7 @@ class ItemEditState extends State<ItemEdit> {
             ),
           ),
 
-          // 項目名入力
+          // 項目名入力フォーム
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -133,7 +149,7 @@ class ItemEditState extends State<ItemEdit> {
             ),
           ),
 
-          // 金額入力
+          // 金額入力フォーム
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -165,7 +181,8 @@ class ItemEditState extends State<ItemEdit> {
               ),
             ),
           ),
-          // ジャンル入力
+
+          // ジャンル入力ボタン
           Container(
             width: double.infinity,
             child: Padding(
@@ -176,24 +193,31 @@ class ItemEditState extends State<ItemEdit> {
               ),
             ),
           ),
-          Container(
-            child: Wrap(
-              direction: Axis.horizontal,
-              spacing: 10.0,
-              runSpacing: 4.0,
-              children: <Widget>[
-                // 各ジャンルのボタンを配置
-                genreButton('食費', 0, const Color(0xFFFFFABC)),
-                genreButton('住居費', 1, const Color(0xFFE3C2C2)),
-                genreButton('光熱費', 2, const Color(0xFFFCFC69)),
-                genreButton('交通費', 3, const Color(0xFFBAFFC2)),
-                genreButton('被服費', 4, const Color(0xFFB9DFFF)),
-                genreButton('趣味', 5, const Color(0xFF7CEBFF)),
-                genreButton('日用品', 6, const Color(0xFFFF7979)),
-                genreButton('雑費', 7, const Color(0xFFFFD6FC)),
-              ],
-            ),
+          // DB からジャンルの一覧を読出してから、ジャンル入力ボタンを描画するため、FutureBuilder を使用
+          FutureBuilder(
+            future: _loadGenre(), // 処理完了を待つメソッドを設定
+            builder: (context, snapshot) {
+              // future に設定したメソッドの返り値は snapshot.data から取得
+              // メソッドの返り値を取得していればジャンルボタンを描画する
+              if (snapshot.hasData) {
+                var genres = snapshot.data;
+                return Container(
+                  child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 10.0,
+                      runSpacing: 4.0,
+                      children: List.generate(genres.length, (index) {
+                        return genreButton(
+                            genres[index].name, index, genres[index].color);
+                      })),
+                );
+              } else {
+                return Text('データが存在しません');
+              }
+            },
           ),
+
+          // 保存ボタン
           SizedBox(
               width: double.infinity,
               child: Padding(
@@ -231,23 +255,27 @@ class ItemEditState extends State<ItemEdit> {
     );
   }
 
+  // 選択したジャンルのインデックスをセット
   void changeIndex(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  Widget genreButton(String name, int index, Color color) {
+  // ジャンルボタン
+  Widget genreButton(String name, int index, int color) {
     return RaisedButton(
       onPressed: () {
         changeIndex(index);
       },
+      // ボタンの外線を設定
       shape: RoundedRectangleBorder(
+        // 選択したジャンルボタンの外線を黒に変更する
         side: BorderSide(
             color: _selectedIndex == index ? Colors.black : Colors.transparent),
       ),
-      color: color,
-      child: Text(name),
+      color: Color(color),  // ボタンの色設定
+      child: Text(name),  // ボタンに表示するテキストの設定
     );
   }
 }
