@@ -112,10 +112,4 @@ class DbHelper {
     Database db = await instance.db;
     return await db.query(genreTableName);
   }
-
-  /// # ジャンル取得メソッド
-  Future<String> selectGenreName (int id) async {
-    Database db = await instance.db;
-    await db.query('SELECT genre FROM $genreTableName WHERE id=$id');
-  }
 }
