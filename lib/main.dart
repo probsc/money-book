@@ -218,36 +218,39 @@ class _MyHomePageState extends State<MyHomePage>
           // 一覧表示の UI を配置
           if (tabs[0] == tab) {
             // 一覧表示
-            return ListView.builder(itemBuilder: (context, index) {
-              if (index >= _listViewItems.length) {
-                return null;
-              }
+            return ListView.builder(
+                itemCount: _listViewItems.length, // 生成する行数を設定
+                itemBuilder: (context, index) {
+                  if (index >= _listViewItems.length) {
+                    return null;
+                  }
 
-              return Padding(
-                padding: EdgeInsets.all(1.0),
-                // 項目表示行を配置
-                child: ItemRow(
-                  item: _listViewItems[index], // 表示する項目を設定
-                  genre: _genres[_monthViewItems[index].genreId], // 表示するジャンルを設定
-                  // 削除ボタン押下時の処理
-                  onDeleteTapped: (id) {
-                    setState(() {
-                      // 選択した項目を削除
-                      _dbHelper.delete(id);
-                      _loadItems();
-                    });
-                  },
-                  // 項目行の押下時の処理
-                  onItemEdited: (item) {
-                    setState(() {
-                      // 選択した項目を更新
-                      _dbHelper.update(item.id, item.toMap());
-                      _loadItems();
-                    });
-                  },
-                ),
-              );
-            });
+                  return Padding(
+                    padding: EdgeInsets.all(1.0),
+                    // 項目表示行を配置
+                    child: ItemRow(
+                      item: _listViewItems[index], // 表示する項目を設定
+                      genre:
+                          _genres[_listViewItems[index].genreId], // 表示するジャンルを設定
+                      // 削除ボタン押下時の処理
+                      onDeleteTapped: (id) {
+                        setState(() {
+                          // 選択した項目を削除
+                          _dbHelper.delete(id);
+                          _loadItems();
+                        });
+                      },
+                      // 項目行の押下時の処理
+                      onItemEdited: (item) {
+                        setState(() {
+                          // 選択した項目を更新
+                          _dbHelper.update(item.id, item.toMap());
+                          _loadItems();
+                        });
+                      },
+                    ),
+                  );
+                });
           } else {
             // 月表示「< 2020年 08月 >」の UI を実装
             return Column(
@@ -317,36 +320,38 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 // 月ごとの一覧の UI を実装
                 Flexible(
-                  child: ListView.builder(itemBuilder: (context, index) {
-                    if (index >= _monthViewItems.length) {
-                      return null;
-                    }
+                  child: ListView.builder(
+                      itemCount: _monthViewItems.length, // 生成する行数を設定
+                      itemBuilder: (context, index) {
+                        if (index >= _monthViewItems.length) {
+                          return null;
+                        }
 
-                    return Padding(
-                      padding: EdgeInsets.all(1.0),
-                      child: ItemRow(
-                        item: _monthViewItems[index], // 表示する項目を設定
-                        genre: _genres[
-                            _monthViewItems[index].genreId], // 表示するジャンルを設定
-                        // 削除ボタン押下時の処理
-                        onDeleteTapped: (id) {
-                          setState(() {
-                            // 選択した項目を削除
-                            _dbHelper.delete(id);
-                            _loadItems();
-                          });
-                        },
-                        // 項目行の押下時の処理
-                        onItemEdited: (item) {
-                          setState(() {
-                            // 選択して項目を更新
-                            _dbHelper.update(item.id, item.toMap());
-                            _loadItems();
-                          });
-                        },
-                      ),
-                    );
-                  }),
+                        return Padding(
+                          padding: EdgeInsets.all(1.0),
+                          child: ItemRow(
+                            item: _monthViewItems[index], // 表示する項目を設定
+                            genre: _genres[
+                                _monthViewItems[index].genreId], // 表示するジャンルを設定
+                            // 削除ボタン押下時の処理
+                            onDeleteTapped: (id) {
+                              setState(() {
+                                // 選択した項目を削除
+                                _dbHelper.delete(id);
+                                _loadItems();
+                              });
+                            },
+                            // 項目行の押下時の処理
+                            onItemEdited: (item) {
+                              setState(() {
+                                // 選択して項目を更新
+                                _dbHelper.update(item.id, item.toMap());
+                                _loadItems();
+                              });
+                            },
+                          ),
+                        );
+                      }),
                 ),
               ],
             );
