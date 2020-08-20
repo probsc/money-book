@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage>
     // 月末日
     final lastOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
 
-    // 各変数を初期化
+    // 表示月の一覧を初期化
     _monthViewItems = <Item>[];
     // 月表示の合計金額を保持する変数
     _totalPrice = 0;
