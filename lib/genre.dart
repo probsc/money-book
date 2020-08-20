@@ -2,7 +2,7 @@
 ///
 /// ジャンルの情報を保持
 ///
-/// id:[id], genre:[name],
+/// id:[id], ジャンル名:[name], 色:[color],
 /// 登録日付:[createdAt],  更新日付:[updatedAt]
 class Genre {
   int id;

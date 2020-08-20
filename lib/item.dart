@@ -32,6 +32,7 @@ class Item {
       'name': name,
       'price': price,
       'date': date,
+      // DateTime 型 から String 型に変換
       'created_at': DateFormat('yyyy-MM-dd HH:mm:ss').format(createdAt),
       'updated_at': DateFormat('yyyy-MM-dd HH:mm:ss').format(updatedAt),
     };
@@ -49,6 +50,7 @@ class Item {
         name = map['name'],
         price = map['price'],
         date = map['date'],
+        // String 型 から DateTime 型に変換
         createdAt = DateTime.parse(map['created_at']),
         updatedAt = DateTime.parse(map['updated_at']);
 }

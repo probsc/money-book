@@ -6,6 +6,19 @@ import 'package:money_book/db_helper.dart';
 import 'package:money_book/genre.dart';
 import 'package:money_book/item.dart';
 
+/// # 項目入力画面
+///
+/// 引数は [id] を設定、項目を新規に登録する場合は、引数を省略
+///
+/// 項目入力画面を表示
+///
+/// ```
+/// final item = await Navigator.of(context).push(MaterialPageRoute(
+///   builder: (context) => ItemEdit(
+///     id: widget.item.id, // 編集時は項目の id を引数にする
+///   ),
+/// ));
+/// ```
 class ItemEdit extends StatefulWidget {
   final int id;
 
@@ -17,7 +30,7 @@ class ItemEdit extends StatefulWidget {
 
 /// # [ItemEdit] ウィジェットから呼ばれる State(状態) クラス
 class ItemEditState extends State<ItemEdit> {
-  // 各入力項目の controller
+  // 各入力項目の controller のインスタンスを生成
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -33,10 +46,11 @@ class ItemEditState extends State<ItemEdit> {
     final DateTime selected = await showDatePicker(
       context: context,
       locale: const Locale('ja'), // DatePicker を日本語化
-      initialDate: DateTime.now(),
-      firstDate: DateTime(DateTime.now().year),
-      lastDate: DateTime(DateTime.now().year + 1),
+      initialDate: DateTime.now(), // 最初に表示する日付
+      firstDate: DateTime(DateTime.now().year), // 表示できる最小の日付
+      lastDate: DateTime(DateTime.now().year + 1), // 表示できる最大の日付
     );
+    // 選択した日付を返す
     return selected;
   }
 
@@ -50,6 +64,7 @@ class ItemEditState extends State<ItemEdit> {
     return genres;
   }
 
+  // ウィジェットが作成時に呼ばれるメソッド
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +94,7 @@ class ItemEditState extends State<ItemEdit> {
       ),
       body: Column(
         children: <Widget>[
-          // 日付入力フォーム
+          // 日付入力フォームの UI を実装
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -93,9 +108,11 @@ class ItemEditState extends State<ItemEdit> {
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(10.0),
+                      // 日付入力フォームを配置
                       child: GestureDetector(
+                        // 日付入力フォーム押下時の処理
                         onTap: () {
-                          // 選択した日付をダイアログに表示
+                          // 選択した日付をフォームに表示
                           setState(() {
                             _selectDate(context).then(
                               (date) => _dateController.text = date != null
@@ -109,6 +126,7 @@ class ItemEditState extends State<ItemEdit> {
                           child: TextField(
                             controller: _dateController,
                             maxLines: 1,
+                            // フォームが未入力の場合、ヒントを表示
                             decoration:
                                 const InputDecoration(hintText: '日付を入力してください'),
                           ),
@@ -121,7 +139,7 @@ class ItemEditState extends State<ItemEdit> {
             ),
           ),
 
-          // 項目名入力フォーム
+          // 項目名入力フォームの UI を実装 
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -135,10 +153,11 @@ class ItemEditState extends State<ItemEdit> {
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(10.0),
+                      // 項目入力フォームを配置
                       child: TextField(
-                        // 項目入力
                         controller: _nameController,
                         maxLines: 1,
+                        // フォームが未入力の場合、ヒントを表示
                         decoration:
                             const InputDecoration(hintText: '項目名を入力してください'),
                       ),
@@ -149,7 +168,7 @@ class ItemEditState extends State<ItemEdit> {
             ),
           ),
 
-          // 金額入力フォーム
+          // 金額入力フォームの UI を実装
           Padding(
             padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Container(
@@ -163,8 +182,8 @@ class ItemEditState extends State<ItemEdit> {
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(10.0),
+                      // 金額入力フォームを配置
                       child: TextField(
-                        // 金額入力
                         controller: _priceController,
                         keyboardType: TextInputType.number, // 入力キーボードを数字のみに制限
                         maxLines: 1,
@@ -172,6 +191,7 @@ class ItemEditState extends State<ItemEdit> {
                         inputFormatters: <TextInputFormatter>[
                           WhitelistingTextInputFormatter.digitsOnly,
                         ],
+                        // フォームが未入力の場合、ヒントを表示
                         decoration:
                             const InputDecoration(hintText: '金額を入力してください'),
                       ),
@@ -182,11 +202,12 @@ class ItemEditState extends State<ItemEdit> {
             ),
           ),
 
-          // ジャンル入力ボタン
+          // ジャンル入力ボタンの UI を実装
           Container(
             width: double.infinity,
             child: Padding(
               padding: EdgeInsets.all(10.0),
+              // ジャンル入力ボタンを配置
               child: Text(
                 'ジャンル',
                 textAlign: TextAlign.left,
@@ -206,6 +227,7 @@ class ItemEditState extends State<ItemEdit> {
                       direction: Axis.horizontal,
                       spacing: 10.0,
                       runSpacing: 4.0,
+                      // ジャンル入力ボタンを生成
                       children: List.generate(genres.length, (index) {
                         return genreButton(
                             genres[index].name, index, genres[index].color);
@@ -217,11 +239,12 @@ class ItemEditState extends State<ItemEdit> {
             },
           ),
 
-          // 保存ボタン
+          // 保存ボタンの UI を実装
           SizedBox(
               width: double.infinity,
               child: Padding(
                 padding: EdgeInsets.all(30.0),
+                // 保存ボタンを配置
                 child: RaisedButton(
                   onPressed: () {
                     // 項目に全て入力がある場合のみ保存を受け付ける
