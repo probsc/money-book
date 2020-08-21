@@ -1,17 +1,16 @@
 import "package:collection/collection.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 
-import 'package:grouped_list/grouped_list.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 import 'package:money_book/db_helper.dart';
-import 'package:money_book/input_dialog.dart';
+import 'package:money_book/genre.dart';
 import 'package:money_book/item.dart';
+import 'package:money_book/item_edit.dart';
 import 'package:money_book/item_row.dart';
-import 'package:money_book/month_item_row.dart';
 
 void main() {
   runApp(MyApp());
@@ -80,11 +79,24 @@ class _MyHomePageState extends State<MyHomePage>
   // 月表示の合計金額を保持
   int _totalPrice = 0;
 
+  // ジャンルを保持するリスト
+  Map<int, Genre> _genres = Map<int, Genre>();
+
   // タブのインデックスを保持
   int _tabIndex = 0;
 
   // 表示月を保持
   DateTime _currentDate = DateTime.now();
+
+  // ジャンルを DB から取得
+  void _loadGenres() {
+    _genres = Map<int, Genre>();
+    _dbHelper.allRowsGenre().then((map) {
+      map.forEach((genre) {
+        _genres[Genre.fromMap(genre).id] = Genre.fromMap(genre);
+      });
+    });
+  }
 
   // DB から項目を読出して一覧に加える
   void _loadItems() {
@@ -167,37 +179,36 @@ class _MyHomePageState extends State<MyHomePage>
     // 描画する円の大きさ
     final radius = 80.0;
 
-    // 項目名ごとにグループ化
-    var groupItems = groupBy(_monthViewItems, (Item item) => item.name);
+    // ジャンルごとにグループ化
+    var groupItems = groupBy(_monthViewItems, (Item item) => item.genreId);
 
     // 各項目の項目名と合計金額を保持
-    List<Map<String, int>> groupTotals = List<Map<String, int>>();
-    List<String> keys = [];
+    List<Map<int, int>> groupTotals = List<Map<int, int>>();
+    List<int> keys = [];
 
-    // 各項目ごとの金額を取得
-    groupItems.forEach((name, items) {
+    // 各ジャンルごとの金額を取得
+    groupItems.forEach((genreId, items) {
       int total = 0;
       items.forEach((item) {
         total += item.price;
       });
-      keys.add(name);
-      groupTotals.add({name: total});
+      keys.add(genreId);
+      groupTotals.add({genreId: total});
     });
 
     return List.generate(groupTotals.length, // グループ数
         (index) {
       return PieChartSectionData(
-        color: const Color(0xff0293ee), // 円グラフの色を設定
-        value: groupTotals[index][keys[index]].toDouble(), // 項目の金額を設定
-        title:
-            '${keys[index]}\n${groupTotals[index][keys[index]]}円', // 項目名と合計金額を表示
-        radius: radius, // 円グラフの太さを設定
-        // 円グラフに表示するテキストを設定
-        titleStyle: TextStyle(
+          color: Color(_genres[keys[index]].color), // 円グラフの色を設定
+          value: groupTotals[index][keys[index]].toDouble(), // 項目の金額を設定
+          title:
+              '${_genres[keys[index]].name}\n${groupTotals[index][keys[index]]}円', // 項目名と合計金額を表示
+          radius: radius, // 円グラフの太さを設定
+          // 円グラフに表示するテキストを設定
+          titleStyle: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xffffffff)),
-      );
+            color: Colors.black,
+          ));
     });
   }
 
@@ -210,6 +221,8 @@ class _MyHomePageState extends State<MyHomePage>
 
     // DB から既存の項目を読出
     _loadItems();
+    // DB からジャンルを読出
+    _loadGenres();
   }
 
   // ウィジェットが破棄時に呼ばれるメソッド
@@ -290,12 +303,15 @@ class _MyHomePageState extends State<MyHomePage>
                   // グループヘッダーに背景色を設定するために Container をラップ
                   return Container(
                     // 日付を表示
-                    child: Text(
-                      '$date ${_getWeekday(date)}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+                    child: Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: Text(
+                        '$date ${_getWeekday(date)}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                     color: Colors.grey, // 背景色を設定
@@ -328,6 +344,8 @@ class _MyHomePageState extends State<MyHomePage>
                       // 項目表示行を配置
                       child: ItemRow(
                         item: _listViewItems[index],
+                        genre: _genres[
+                            _listViewItems[index].genreId], // 表示するジャンルを設定
                         // 削除ボタン押下時の処理
                         onDeleteTapped: (id) {
                           setState(() {
@@ -444,12 +462,15 @@ class _MyHomePageState extends State<MyHomePage>
                       // グループヘッダーに背景色を設定するために Container をラップ
                       return Container(
                         // 日付を表示
-                        child: Text(
-                          '$date ${_getWeekday(date)}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                        child: Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Text(
+                            '$date ${_getWeekday(date)}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                         color: Colors.grey, // 背景色を設定
@@ -481,7 +502,9 @@ class _MyHomePageState extends State<MyHomePage>
                           padding: EdgeInsets.all(1.0),
                           // 項目表示行を配置
                           child: ItemRow(
-                            item: _listViewItems[index],
+                            item: _monthViewItems[index],
+                            genre: _genres[
+                                _monthViewItems[index].genreId], // 表示するジャンルを設定
                             // 削除ボタン押下時の処理
                             onDeleteTapped: (id) {
                               setState(() {
@@ -493,7 +516,6 @@ class _MyHomePageState extends State<MyHomePage>
                             // 項目行の押下時の処理
                             onItemEdited: (item) {
                               setState(() {
-                                // 選択した項目を更新
                                 _dbHelper.update(item.id, item.toMap());
                                 _loadItems();
                               });
@@ -515,25 +537,20 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       // フローティングボタン(新規項目追加) の UI を実装
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 押下時に項目入力ダイアログを表示
-          showDialog(
-              barrierDismissible: false, // ダイアログの背景を押しても閉じないように設定
-              context: context,
-              builder: (_) {
-                // 表示するダイアログを設定
-                return InputDialog();
-              }).then((item) {
-            // 新規項目追加時に再描画
-            setState(() {
-              if (item != null) {
-                // 新規項目を DB に保存
-                _dbHelper.insert(item.toMap());
+        onPressed: () async {
+          // 押下時に項目入力画面を表示
+          final item = await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ItemEdit(),
+          ));
+          // 新規項目追加時に再描画
+          setState(() {
+            if (item != null) {
+              // 新規項目を DB に保存
+              _dbHelper.insert(item.toMap());
 
-                // 一覧を更新
-                _loadItems();
-              }
-            });
+              // 一覧を更新
+              _loadItems();
+            }
           });
         },
         child: Icon(Icons.add),
