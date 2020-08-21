@@ -1,9 +1,11 @@
 import "package:collection/collection.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 
 import 'package:grouped_list/grouped_list.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import 'package:money_book/db_helper.dart';
 import 'package:money_book/input_dialog.dart';
@@ -160,6 +162,45 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  // 円グラフのセクション作成メソッド
+  List<PieChartSectionData> showingSections() {
+    // 描画する円の大きさ
+    final radius = 80.0;
+
+    // 項目名ごとにグループ化
+    var groupItems = groupBy(_monthViewItems, (Item item) => item.name);
+
+    // 各項目の項目名と合計金額を保持
+    List<Map<String, int>> groupTotals = List<Map<String, int>>();
+    List<String> keys = [];
+
+    // 各項目ごとの金額を取得
+    groupItems.forEach((name, items) {
+      int total = 0;
+      items.forEach((item) {
+        total += item.price;
+      });
+      keys.add(name);
+      groupTotals.add({name: total});
+    });
+
+    return List.generate(groupTotals.length, // グループ数
+        (index) {
+      return PieChartSectionData(
+        color: const Color(0xff0293ee), // 円グラフの色を設定
+        value: groupTotals[index][keys[index]].toDouble(), // 項目の金額を設定
+        title:
+            '${keys[index]}\n${groupTotals[index][keys[index]]}円', // 項目名と合計金額を表示
+        radius: radius, // 円グラフの太さを設定
+        // 円グラフに表示するテキストを設定
+        titleStyle: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xffffffff)),
+      );
+    });
+  }
+
   // ウィジェットが作成時に呼ばれるメソッド
   @override
   void initState() {
@@ -182,6 +223,9 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // キーボード表示時に、フローティングボタンが画面にせり上がらないように設定
+      resizeToAvoidBottomInset: false,
+
       // AppBar を設定
       appBar: AppBar(
           // タブの UI を実装
@@ -315,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage>
             return Column(
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -366,9 +410,22 @@ class _MyHomePageState extends State<MyHomePage>
                     ],
                   ),
                 ),
+
+                // 円グラフの UI を配置
+                PieChart(
+                  PieChartData(
+                    borderData: FlBorderData(
+                      show: false, // グラフの境界線を非表示
+                    ),
+                    sectionsSpace: 3, // セクションの境界線の太さを設定
+                    centerSpaceRadius: 40, // 円の大きさを設定
+                    sections: showingSections(), // 円グラフに表示するセクションを設定
+                  ),
+                ),
+
                 // 合計金額の UI を実装
                 Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(10.0),
                   child: Text(
                       // 合計金額を表示
                       '¥${_totalPrice.toString()}',
@@ -379,34 +436,77 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 // 月ごとの一覧の UI を実装
                 Flexible(
-                  child: ListView.builder(itemBuilder: (context, index) {
-                    if (index >= _monthViewItems.length) {
-                      return null;
-                    }
+                  child: GroupedListView<dynamic, String>(
+                    groupBy: (element) => element.date, // 日付でグループ化
+                    elements: _monthViewItems,
+                    order: GroupedListOrder.ASC, // 並び順を日付を古い順に設定
+                    groupSeparatorBuilder: (String date) {
+                      // グループヘッダーに背景色を設定するために Container をラップ
+                      return Container(
+                        // 日付を表示
+                        child: Text(
+                          '$date ${_getWeekday(date)}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                        color: Colors.grey, // 背景色を設定
+                      );
+                    },
+                    // 項目表示行を生成
+                    indexedItemBuilder: (context, element, index) {
+                      if (_listViewItems.length == 0) {
+                        return null;
+                      }
 
-                    return Padding(
-                      padding: EdgeInsets.all(1.0),
-                      child: MonthItemRow(
-                        item: _monthViewItems[index],
-                        // 削除ボタン押下時の処理
-                        onDeleteTapped: (id) {
-                          setState(() {
-                            // 選択した項目を削除
-                            _dbHelper.delete(id);
-                            _loadItems();
-                          });
-                        },
-                        // 項目行の押下時の処理
-                        onItemEdited: (item) {
-                          setState(() {
-                            // 選択して項目を更新
-                            _dbHelper.update(item.id, item.toMap());
-                            _loadItems();
-                          });
-                        },
-                      ),
-                    );
-                  }),
+                      // 日付部分を交互に背景色なし、薄い背景色にするため各グループごとの index を取得
+                      var groupItems =
+                          groupBy(_listViewItems, (Item item) => item.date);
+                      int itemIndex = 0;
+
+                      // グループごとの index を保持
+                      List<int> itemIndexs = [];
+                      groupItems.forEach((date, items) {
+                        itemIndex = 0;
+                        items.forEach((item) {
+                          itemIndexs.add(itemIndex);
+                          itemIndex++;
+                        });
+                      });
+
+                      return Container(
+                        child: Padding(
+                          padding: EdgeInsets.all(1.0),
+                          // 項目表示行を配置
+                          child: ItemRow(
+                            item: _listViewItems[index],
+                            // 削除ボタン押下時の処理
+                            onDeleteTapped: (id) {
+                              setState(() {
+                                // 選択した項目を削除
+                                _dbHelper.delete(id);
+                                _loadItems();
+                              });
+                            },
+                            // 項目行の押下時の処理
+                            onItemEdited: (item) {
+                              setState(() {
+                                // 選択した項目を更新
+                                _dbHelper.update(item.id, item.toMap());
+                                _loadItems();
+                              });
+                            },
+                          ),
+                        ),
+                        // 背景色設定(交互に背景色なし、薄い背景色に設定)
+                        color: (itemIndexs[index] % 2 == 0)
+                            ? Colors.transparent
+                            : Colors.grey[300],
+                      );
+                    },
+                  ),
                 ),
               ],
             );
