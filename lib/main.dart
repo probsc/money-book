@@ -1,11 +1,15 @@
+import "package:collection/collection.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+
+import 'package:grouped_list/grouped_list.dart';
 
 import 'package:money_book/db_helper.dart';
 import 'package:money_book/input_dialog.dart';
 import 'package:money_book/item.dart';
 import 'package:money_book/item_row.dart';
+import 'package:money_book/month_item_row.dart';
 
 void main() {
   runApp(MyApp());
@@ -97,6 +101,8 @@ class _MyHomePageState extends State<MyHomePage>
     map.forEach((item) {
       _listViewItems.add(Item.fromMap(item));
     });
+    //　日付が古い順にソート
+    _listViewItems.sort((a, b) => a.date.compareTo(b.date));
   }
 
   // 表示月の一覧を更新
@@ -124,6 +130,34 @@ class _MyHomePageState extends State<MyHomePage>
     _monthViewItems.forEach((item) {
       _totalPrice += item.price;
     });
+  }
+
+  // 曜日を算出
+  String _getWeekday(String date) {
+    var weekday = DateTime.parse(date);
+    switch (weekday.weekday) {
+      case DateTime.sunday:
+        return '(日)';
+        break;
+      case DateTime.monday:
+        return '(月)';
+        break;
+      case DateTime.tuesday:
+        return '(火)';
+        break;
+      case DateTime.wednesday:
+        return '(水)';
+        break;
+      case DateTime.thursday:
+        return '(木)';
+        break;
+      case DateTime.friday:
+        return '(金)';
+        break;
+      case DateTime.saturday:
+        return '(土)';
+        break;
+    }
   }
 
   // ウィジェットが作成時に呼ばれるメソッド
@@ -201,36 +235,81 @@ class _MyHomePageState extends State<MyHomePage>
         children: tabs.map((tab) {
           // 一覧表示の UI を配置
           if (tabs[0] == tab) {
-            // 一覧表示
-            return ListView.builder(itemBuilder: (context, index) {
-              if (index >= _listViewItems.length) {
-                return null;
-              }
+            // グループヘッダー「2020-08-01(土)」を配置
+            return Padding(
+              padding: EdgeInsets.all(10.0),
+              child: GroupedListView<dynamic, String>(
+                groupBy: (element) => element.date, // 日付でグループ化
+                elements: _listViewItems,
+                order: GroupedListOrder.ASC, // 並び順を日付を古い順に設定
+                groupSeparatorBuilder: (String date) {
+                  // グループヘッダーに背景色を設定するために Container をラップ
+                  return Container(
+                    // 日付を表示
+                    child: Text(
+                      '$date ${_getWeekday(date)}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                    color: Colors.grey, // 背景色を設定
+                  );
+                },
+                // 項目表示行を生成
+                indexedItemBuilder: (context, element, index) {
+                  if (_listViewItems.length == 0) {
+                    return null;
+                  }
 
-              return Padding(
-                padding: EdgeInsets.all(1.0),
-                // 項目表示行を配置
-                child: ItemRow(
-                  item: _listViewItems[index],
-                  // 削除ボタン押下時の処理
-                  onDeleteTapped: (id) {
-                    setState(() {
-                      // 選択した項目を削除
-                      _dbHelper.delete(id);
-                      _loadItems();
+                  // 日付部分を交互に背景色なし、薄い背景色にするため各グループごとの index を取得
+                  var groupItems =
+                      groupBy(_listViewItems, (Item item) => item.date);
+                  int itemIndex = 0;
+
+                  // グループごとの index を保持
+                  List<int> itemIndexs = [];
+                  groupItems.forEach((date, items) {
+                    itemIndex = 0;
+                    items.forEach((item) {
+                      itemIndexs.add(itemIndex);
+                      itemIndex++;
                     });
-                  },
-                  // 項目行の押下時の処理
-                  onItemEdited: (item) {
-                    setState(() {
-                      // 選択した項目を更新
-                      _dbHelper.update(item.id, item.toMap());
-                      _loadItems();
-                    });
-                  },
-                ),
-              );
-            });
+                  });
+
+                  return Container(
+                    child: Padding(
+                      padding: EdgeInsets.all(1.0),
+                      // 項目表示行を配置
+                      child: ItemRow(
+                        item: _listViewItems[index],
+                        // 削除ボタン押下時の処理
+                        onDeleteTapped: (id) {
+                          setState(() {
+                            // 選択した項目を削除
+                            _dbHelper.delete(id);
+                            _loadItems();
+                          });
+                        },
+                        // 項目行の押下時の処理
+                        onItemEdited: (item) {
+                          setState(() {
+                            // 選択した項目を更新
+                            _dbHelper.update(item.id, item.toMap());
+                            _loadItems();
+                          });
+                        },
+                      ),
+                    ),
+                    // 背景色設定(交互に背景色なし、薄い背景色に設定)
+                    color: (itemIndexs[index] % 2 == 0)
+                        ? Colors.transparent
+                        : Colors.grey[300],
+                  );
+                },
+              ),
+            );
           } else {
             // 月表示「< 2020年 08月 >」の UI を実装
             return Column(
@@ -307,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage>
 
                     return Padding(
                       padding: EdgeInsets.all(1.0),
-                      child: ItemRow(
+                      child: MonthItemRow(
                         item: _monthViewItems[index],
                         // 削除ボタン押下時の処理
                         onDeleteTapped: (id) {

@@ -43,7 +43,7 @@ class InputDialogState extends State<InputDialog> {
       locale: const Locale('ja'), // DatePicker を日本語化
       initialDate: DateTime.now(), // 最初に表示する日付
       firstDate: DateTime(DateTime.now().year), // 表示できる最小の日付
-      lastDate: DateTime(DateTime.now().year + 1),  // 表示できる最大の日付
+      lastDate: DateTime(DateTime.now().year + 1), // 表示できる最大の日付
     );
     // 選択した日付を返す
     return selected;

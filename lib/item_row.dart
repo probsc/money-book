@@ -63,29 +63,32 @@ class ItemRowState extends State<ItemRow> {
         },
         child:
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          // 日付
-          Expanded(flex: 1, child: Text(widget.item.date)),
           // 項目名
-          Expanded(flex: 1, child: Text(widget.item.name)),
+          Expanded(flex: 1, child: Center(child: Text(widget.item.name))),
           // 金額
-          Expanded(flex: 1, child: Text('¥${widget.item.price.toString()}')),
-          // 削除ボタン
           Expanded(
               flex: 1,
-              child: IconButton(
-                // 削除ボタン押下時に処理
-                onPressed: () {
-                  // 項目の削除をコールバックメソッドに通知
-                  widget.onDeleteTapped(widget.item.id);
-                },
-                // アイコン画像を設定
-                icon: Image.asset(
-                  'images/cross.png',
-                  color: Colors.black,
-                  width: 20,
-                  height: 20,
-                ),
-              )),
+              child: Center(child: Text('¥${widget.item.price.toString()}'))),
+          // 削除アイコン
+          Expanded(
+            flex: 1,
+            child: Container(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  // 削除ボタン押下時に処理
+                  onPressed: () {
+                    // 項目の削除をコールバックメソッドに通知
+                    widget.onDeleteTapped(widget.item.id);
+                  },
+                  // アイコン画像を設定
+                  icon: Image.asset(
+                    'images/trash.png',
+                    color: Colors.black,
+                    width: 20,
+                    height: 20,
+                  ),
+                )),
+          )
         ]),
       ),
     ));
